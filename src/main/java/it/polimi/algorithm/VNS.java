@@ -1,6 +1,8 @@
 package it.polimi.algorithm;
 
 import it.polimi.utils.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -10,14 +12,14 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class VNS {
-    private int MAX_ITER_WITHOUT_IMPROVEMENTS = 10;
-    private Random random;
+    private final Logger LOGGER = LoggerFactory.getLogger(VNS.class);
+    private final Random random = new Random();
+    private final int MAX_SOLUTION_CHANGES = 20;
 
     private int[] medians;
     private float objective;
 
     public VNS() {
-        this.random = new Random();
     }
 
     public int[] getMedians() {
@@ -45,6 +47,7 @@ public class VNS {
         float fcur = fopt;
 
         int k = 1;
+        int changes = 0;
         while (k < kmax) {
             // shaking
             for (int j = 1; j <= k; j++) {
@@ -81,6 +84,12 @@ public class VNS {
                 c1 = c1cur.clone();
                 c2 = c2cur.clone();
                 k = 1;
+
+                changes++;
+                if (changes >= MAX_SOLUTION_CHANGES) {
+                    LOGGER.info("Max solution changes limit hit.");
+                    break;
+                }
             } else {
                 fcur = fopt;
                 xcur = xopt.clone();
