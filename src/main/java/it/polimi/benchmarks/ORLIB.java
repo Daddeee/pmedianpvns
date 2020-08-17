@@ -42,12 +42,12 @@ public class ORLIB {
         for (int i=1; i<=40; i++) {
             String path = String.format(basePath, i);
             ORLIBReader orlibReader = new ORLIBReader(path);
-            VNS vns = new VNS();
+            VNS vns = new VNS(orlibReader.getN(), orlibReader.getP(), orlibReader.getD());
 
             System.out.print(path);
             long start = System.nanoTime();
 
-            vns.run(orlibReader.getN(), orlibReader.getP(), orlibReader.getD(), orlibReader.getP());
+            vns.run();
 
             long end = System.nanoTime();
             double time = (end - start) / 1e6;

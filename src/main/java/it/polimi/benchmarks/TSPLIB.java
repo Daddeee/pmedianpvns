@@ -33,10 +33,10 @@ public class TSPLIB {
             TSPLIBReader reader = new TSPLIBReader(datasetPath);
 
             for (int j=0; j<ps[0].length; j++) {
-                VNS vns = new VNS();
+                VNS vns = new VNS(reader.getN(), ps[i][j], reader.getD());
                 System.out.println(datasetPath);
                 long start = System.nanoTime();
-                vns.run(reader.getN(), ps[i][j], reader.getD(), ps[i][j]);
+                vns.run();
                 long end = System.nanoTime();
                 double time = (end - start) / 1e6;
                 System.out.println(String.format("res=%.2f time=%.2fms", vns.getObjective(), time));

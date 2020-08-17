@@ -14,8 +14,8 @@ public class App {
         //Distance distance = new OSRM(locations);
         Distance distance = new Haversine(locations);
 
-        VNS vns = new VNS();
-        vns.run(locations.size(), 5, distance.getDurationsMatrix(), 5);
+        VNS vns = new VNS(locations.size(), 5, distance.getDurationsMatrix());
+        vns.run();
 
         System.out.print("Medians: ");
         int[] medians = vns.getMedians();

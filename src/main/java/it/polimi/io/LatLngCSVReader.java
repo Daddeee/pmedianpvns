@@ -21,14 +21,15 @@ public class LatLngCSVReader {
 
                 double lat = Double.parseDouble(splitted[0]);
                 double lng = Double.parseDouble(splitted[1]);
-                String id = (splitted.length == 3) ? splitted[2] : Integer.toString(count++);
 
-                locations.add(new Location(id, lat, lng));
+                if (lat != 0 || lng != 0) {
+                    String id = (splitted.length == 3) ? splitted[2] : Integer.toString(count++);
+                    locations.add(new Location(id, lat, lng));
+                }
 
                 line = reader.readLine();
             }
             reader.close();
-
             return locations;
         } catch (IOException e) {
             throw new RuntimeException(e);

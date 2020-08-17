@@ -16,10 +16,24 @@ public class VNS {
     private final Random random = new Random();
     private final int MAX_SOLUTION_CHANGES = 20;
 
+    protected int n;
+    protected int p;
+    protected int kmax;
+    protected float[][] d;
+
     private int[] medians;
+    private int[] labels;
     private float objective;
 
-    public VNS() {
+    public VNS(final int n, final int p, final float[][] d) {
+        this.n = n;
+        this.p = p;
+        this.kmax = p;
+        this.d = d;
+    }
+
+    public int[] getLabels() {
+        return labels;
     }
 
     public int[] getMedians() {
@@ -30,14 +44,14 @@ public class VNS {
         return objective;
     }
 
-    public void run(final int n, final int p, final float[][] d, final int kmax) {
+    public void run() {
         // optimal values
         int[] xopt = permutateRange(0, n);
         int[] xidxopt = getIndexes(xopt);
-        int[][] c = getClosestMedians(n, p, d, xopt);
+        int[][] c = getClosestMedians(xopt);
         int[] c1 = c[0];
         int[] c2 = c[1];
-        float fopt = computeObjectiveFunction(n, d, c1);
+        float fopt = computeObjectiveFunction(c1);
 
         // current values
         int[] xcur = xopt.clone();
@@ -55,7 +69,7 @@ public class VNS {
                 int goin = random.nextInt(n - p) + p;
 
                 // find best median to remove
-                Pair<Integer, Float> pair = move(n, p, d, xcur, xidx, c1cur, c2cur, goin);
+                Pair<Integer, Float> pair = move(xcur, xidx, c1cur, c2cur, goin);
                 int goout = pair.getFirst();
                 float w = pair.getSecond();
 
@@ -70,11 +84,11 @@ public class VNS {
                 xidx[goout] = inidx;
 
                 // update c1 and c2
-                update(n, p, d, xcur, c1cur, c2cur, goin, goout);
+                update(xcur, c1cur, c2cur, goin, goout);
             }
 
             // Local search
-            fcur = fastInterchange(n, p, d, xcur, xidx, c1cur, c2cur, fcur);
+            fcur = fastInterchange(xcur, xidx, c1cur, c2cur, fcur);
 
             // Move or not
             if (fcur < fopt) {
@@ -101,6 +115,7 @@ public class VNS {
         }
 
         this.medians = Arrays.copyOfRange(xopt, 0, p);
+        this.labels = c1;
         this.objective = fopt;
     }
 
@@ -119,7 +134,7 @@ public class VNS {
         return idxs;
     }
 
-    private int[][] getClosestMedians(int n, int p, float[][] d, int[] x) {
+    private int[][] getClosestMedians(int[] x) {
         int[][] c = new int[2][n];
 
         // for each location
@@ -148,7 +163,7 @@ public class VNS {
         return c;
     }
 
-    private float computeObjectiveFunction(int n, float[][] d, int[] c1) {
+    protected float computeObjectiveFunction(int[] c1) {
         float w = 0;
         for (int i=0; i<n; i++) {
             w += d[i][c1[i]];
@@ -156,7 +171,7 @@ public class VNS {
         return w;
     }
 
-    private Pair<Integer, Float> move(int n, int p, float[][] d, int[] x, int[] xidx, int[] c1, int[] c2, int goin) {
+    protected Pair<Integer, Float> move(int[] x, int[] xidx, int[] c1, int[] c2, int goin) {
         // w is th change in the obj function obtained with the best interchange
         float w = 0;
         // v[j] is the change in the objective function obtained by deleting a facility currently in the solution,
@@ -170,8 +185,6 @@ public class VNS {
                 // goin become the new median of i replacing of c1[i]. Update the change in obj
                 w = w + d[i][goin] - d[i][c1[i]];
             } else {
-                if (xidx[c1[i]] > v.length)
-                    System.out.println("OK");
                 // calculate the cost of deleting c1[i] from solution
                 v[xidx[c1[i]]] = v[xidx[c1[i]]] + Math.min(d[i][goin], d[i][c2[i]]) - d[i][c1[i]];
             }
@@ -191,7 +204,7 @@ public class VNS {
         return new Pair<>(goout, w);
     }
 
-    private void update(int n, int p, float[][] d, int[]x,  int[] c1, int[] c2, int goin, int goout) {
+    private void update(int[]x,  int[] c1, int[] c2, int goin, int goout) {
         // updates c1 and c2 for each location by replacing goout with goin
         for (int i=0; i<n; i++) {
             // if goout is current median
@@ -205,7 +218,7 @@ public class VNS {
                     c1[i] = c2[i];
 
                     // and another c2[i] is searched.
-                    c2[i] = searchSecondMedian(i, p, d, x, c1);
+                    c2[i] = searchSecondMedian(i, x, c1);
                 }
             } else {
                 if (d[i][goin] < d[i][c1[i]]) {
@@ -215,13 +228,13 @@ public class VNS {
                     c2[i] = goin;
                 } else if (c2[i] == goout) {
                     // and another c2[i] is searched.
-                    c2[i] = searchSecondMedian(i, p, d ,x, c1);
+                    c2[i] = searchSecondMedian(i,x, c1);
                 }
             }
         }
     }
 
-    private int searchSecondMedian(int i, int p, float[][] d, int[] x, int[] c1) {
+    private int searchSecondMedian(int i, int[] x, int[] c1) {
         //  TODO: maybe use max heap
         float newMin = Float.MAX_VALUE;
         int secondMedian = -1;
@@ -234,14 +247,14 @@ public class VNS {
         return secondMedian;
     }
 
-    private float fastInterchange(int n, int p, float[][] d, int[] xopt, int[] xidx, int[] c1, int[] c2, float fopt) {
+    private float fastInterchange(int[] xopt, int[] xidx, int[] c1, int[] c2, float fopt) {
         while(true) {
             // find optimal goin and gout
             float wopt = Float.MAX_VALUE;
             int goinopt = -1, gooutopt = -1;
             for (int i=p; i < n; i++) {
                 int goin = xopt[i];
-                Pair<Integer, Float> pair = move(n, p, d, xopt, xidx, c1, c2, goin);
+                Pair<Integer, Float> pair = move(xopt, xidx, c1, c2, goin);
                 int goout = pair.getFirst();
                 float w = pair.getSecond();
                 if (w < wopt) {
@@ -265,7 +278,7 @@ public class VNS {
             xidx[goinopt] = outidx;
             xidx[gooutopt] = inidx;
 
-            update(n, p, d, xopt, c1, c2, goinopt, gooutopt);
+            update(xopt, c1, c2, goinopt, gooutopt);
         }
     }
 }
