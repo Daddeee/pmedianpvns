@@ -1,6 +1,6 @@
 package it.polimi.benchmarks;
 
-import it.polimi.algorithm.VNS;
+import it.polimi.algorithms.pmedian.PMedianVNS;
 import it.polimi.io.TSPLIBReader;
 import it.polimi.io.TestCSVWriter;
 
@@ -33,7 +33,7 @@ public class TSPLIB {
             TSPLIBReader reader = new TSPLIBReader(datasetPath);
 
             for (int j=0; j<ps[0].length; j++) {
-                VNS vns = new VNS(reader.getN(), ps[i][j], reader.getD());
+                PMedianVNS vns = new PMedianVNS(reader.getN(), ps[i][j], reader.getD());
                 System.out.println(datasetPath);
                 long start = System.nanoTime();
                 vns.run();

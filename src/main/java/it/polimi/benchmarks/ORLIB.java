@@ -1,6 +1,6 @@
 package it.polimi.benchmarks;
 
-import it.polimi.algorithm.VNS;
+import it.polimi.algorithms.pmedian.PMedianVNS;
 import it.polimi.io.ORLIBReader;
 import it.polimi.io.TestCSVWriter;
 
@@ -42,7 +42,7 @@ public class ORLIB {
         for (int i=1; i<=40; i++) {
             String path = String.format(basePath, i);
             ORLIBReader orlibReader = new ORLIBReader(path);
-            VNS vns = new VNS(orlibReader.getN(), orlibReader.getP(), orlibReader.getD());
+            PMedianVNS vns = new PMedianVNS(orlibReader.getN(), orlibReader.getP(), orlibReader.getD());
 
             System.out.print(path);
             long start = System.nanoTime();

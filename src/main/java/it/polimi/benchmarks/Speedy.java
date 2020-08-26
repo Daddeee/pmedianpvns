@@ -1,6 +1,6 @@
 package it.polimi.benchmarks;
 
-import it.polimi.algorithm.VNS;
+import it.polimi.algorithms.pmedian.PMedianVNS;
 import it.polimi.distances.Distance;
 import it.polimi.distances.Haversine;
 import it.polimi.domain.Location;
@@ -18,7 +18,7 @@ public class Speedy {
         Distance dist = new Haversine(locations);
 
         long start = System.nanoTime();
-        VNS vns = new VNS(locations.size(), p, dist.getDurationsMatrix());
+        PMedianVNS vns = new PMedianVNS(locations.size(), p, dist.getDurationsMatrix());
         vns.run();
         long end = System.nanoTime();
 
