@@ -5,11 +5,11 @@ import java.util.Objects;
 
 public class Service {
     private Location location;
-    private Calendar releaseDate;
+    private int releaseDate;
     private int days;
     private int score;
 
-    public Service(final Location location, final Calendar releaseDate, final int days, final int score) {
+    public Service(final Location location, final int releaseDate, final int days, final int score) {
         this.location = location;
         this.releaseDate = releaseDate;
         this.days = days;
@@ -20,7 +20,7 @@ public class Service {
         return location;
     }
 
-    public Calendar getReleaseDate() {
+    public int getReleaseDate() {
         return releaseDate;
     }
 

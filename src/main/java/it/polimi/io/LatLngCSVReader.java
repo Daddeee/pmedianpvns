@@ -23,7 +23,7 @@ public class LatLngCSVReader {
                 double lng = Double.parseDouble(splitted[1]);
 
                 if (lat != 0 || lng != 0) {
-                    String id = (splitted.length == 3) ? splitted[2] : Integer.toString(count++);
+                    String id = Integer.toString(count++);
                     locations.add(new Location(id, lat, lng));
                 }
 

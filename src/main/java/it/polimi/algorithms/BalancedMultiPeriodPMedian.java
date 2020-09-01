@@ -30,7 +30,7 @@ public class BalancedMultiPeriodPMedian {
     }
 
     private static void runModel(final List<Service> services, final int p, final int t) {
-        double[] releaseDates = getReleaseDates(services);
+        double[] releaseDates = services.stream().map(Service::getReleaseDate).mapToDouble(Integer::doubleValue).toArray();
         double[] dueDates = getDueDates(releaseDates, services, t);
 
         AMPL ampl = new AMPL();
@@ -131,20 +131,6 @@ public class BalancedMultiPeriodPMedian {
         } finally {
             ampl.close();
         }
-    }
-
-    private static double[] getReleaseDates(List<Service> services) {
-        List<Long> releaseDates = services.stream()
-                .map(Service::getReleaseDate)
-                .map(Calendar::getTimeInMillis)
-                .map(TimeUnit.MILLISECONDS::toDays)
-                .collect(Collectors.toList());
-
-        long min = releaseDates.stream().min(Long::compareTo).orElse(0L);
-
-        return releaseDates.stream()
-                .mapToDouble(rd -> rd - min)
-                .toArray();
     }
 
     private static double[] getDueDates(final double[] releaseDates, final List<Service> services, final int t) {

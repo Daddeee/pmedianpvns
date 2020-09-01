@@ -34,29 +34,42 @@ public class SpeedyReader {
     }
 
     public List<Service> readCSV(File csv) {
-        List<Service> services = new ArrayList<>();
+        List<Location> locations = new ArrayList<>();
+        List<Calendar> releaseDates = new ArrayList<>();
+        List<Integer> days = new ArrayList<>();
+        List<Integer> scores = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(csv));
             String line = reader.readLine();
             int count = 0;
             while (line != null) {
                 String[] splitted = line.split(",");
+
                 double lat = Double.parseDouble(splitted[0]);
                 double lng = Double.parseDouble(splitted[1]);
                 Location loc = new Location(Integer.toString(count), lat, lng);
+                locations.add(loc);
+
                 TemporalAccessor tacc = DateTimeFormatter.ISO_INSTANT.parse(splitted[2]);
                 Instant instant = Instant.from(tacc);
                 ZonedDateTime zdt = ZonedDateTime.ofInstant(instant, ZoneId.systemDefault());
                 Calendar from = GregorianCalendar.from(zdt);
-                // TODO do better
-                int ndays = 2;
-                int score = 1;
-                services.add(new Service(loc, from, ndays, score));
+                releaseDates.add(from);
+
+                days.add(1); // ndays, TODO: do better
+                scores.add(1); // scores, TODO: do better
+
                 line = reader.readLine();
                 count++;
             }
             reader.close();
-            return services;
+
+            List<Integer> releaseDays = parseReleaseDates(releaseDates);
+
+            return IntStream.range(0, locations.size())
+                    .mapToObj(i -> new Service(locations.get(i), releaseDays.get(i), days.get(i), scores.get(i)))
+                    .collect(Collectors.toList());
+
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -73,20 +86,20 @@ public class SpeedyReader {
         return date + "-" + (month + 1) + "-" + year;
     }
 
-    public static List<Long> parseReleaseDates(final List<Service> services) {
-        List<Long> releaseDays = services.stream()
-                .map(Service::getReleaseDate)
+    public static List<Integer> parseReleaseDates(final List<Calendar> releaseDates) {
+        List<Long> releaseDays = releaseDates.stream()
                 .map(Calendar::getTimeInMillis)
                 .map(TimeUnit.MILLISECONDS::toDays)
                 .collect(Collectors.toList());
+
         Long min = releaseDays.stream().min(Long::compareTo).orElse(0L);
-        return releaseDays.stream().map(rd -> rd - min).collect(Collectors.toList());
+
+        return releaseDays.stream().map(rd -> rd - min).mapToInt(Long::intValue).boxed().collect(Collectors.toList());
     }
 
-    public static List<Long> parseDueDates(final List<Service> services) {
-        List<Long> releaseDates = parseReleaseDates(services);
-        return IntStream.range(0, releaseDates.size())
-                .mapToLong(i -> releaseDates.get(i) + services.get(i).getDays() - 1)
+    public static List<Integer> parseDueDates(final List<Integer> releaseDays, final List<Integer> days) {
+        return IntStream.range(0, releaseDays.size())
+                .map(i -> releaseDays.get(i) + days.get(i) - 1)
                 .boxed()
                 .collect(Collectors.toList());
     }

@@ -80,8 +80,8 @@ subject to number_of_supermedians:
 subject to assign_to_supermedians_only {j in N, k in N}:
     y[j,k] <= y[k,k];
 
-#subject to supermedian_has_one_median_in_each_period {k in N, t in T}:
-#    sum {j in N} z[j,k,t] = y[k,k];
+subject to supermedian_has_one_median_in_each_period {k in N, t in T}:
+    sum {j in N} z[j,k,t] = y[k,k];
 
 subject to define_z_1 {j in N, k in N, t in T}:
     z[j,k,t] <= x[j,j,t];

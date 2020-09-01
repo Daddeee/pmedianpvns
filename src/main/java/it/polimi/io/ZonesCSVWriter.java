@@ -32,4 +32,28 @@ public class ZonesCSVWriter {
         }
     }
 
+    public static void write(final String filepath, final Location[] locations, final int[] customerPeriods,
+                             final int[] customerMedians, final int[] customerSuperMedians) {
+        if (locations.length != customerPeriods.length)
+            throw new IllegalArgumentException("Locations and labels have different sizes: " +
+                    locations.length + " and " + customerPeriods.length);
+
+        try {
+            File solutionFile = new File(filepath);
+            solutionFile.getParentFile().mkdirs();
+            solutionFile.createNewFile();
+
+            BufferedWriter writer = new BufferedWriter(new FileWriter(solutionFile));
+
+            String formatRow = "%f,%f,%d,%d,%d\n";
+
+            for (int i=0; i<locations.length; i++)
+                writer.write(String.format(formatRow, locations[i].getLat(), locations[i].getLng(), customerPeriods[i],
+                        customerMedians[i], customerSuperMedians[i]));
+
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

@@ -4,9 +4,12 @@ import com.ampl.*;
 import it.polimi.distances.Distance;
 import it.polimi.distances.Haversine;
 import it.polimi.domain.Location;
+import it.polimi.domain.Service;
 import it.polimi.io.LatLngCSVReader;
+import it.polimi.io.TestCSVReader;
 import it.polimi.io.ZonesCSVWriter;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +17,11 @@ import java.util.stream.Collectors;
 
 public class BalancedPMedianExact {
     public static void main( String[] args ) {
-        List<Location> locations = LatLngCSVReader.read("instances/speedy/grosseto-test.csv");
-        solve(locations, 5);
+        //List<Location> locations = LatLngCSVReader.read("instances/speedy/grosseto-test.csv");
+        TestCSVReader reader = new TestCSVReader();
+        List<Service> services = reader.readCSV(new File("instances/test.csv"));
+        int p = 3;
+        solve(services.stream().map(Service::getLocation).collect(Collectors.toList()), p);
     }
 
     public static void solve(List<Location> locations, int p) {
@@ -69,7 +75,6 @@ public class BalancedPMedianExact {
             // Get the values of the variable Buy in a dataframe object
             Variable x = ampl.getVariable("x");
             DataFrame df = x.getValues();
-
             int[] labels = new int[locations.size()];
             df.iterator().forEachRemaining(os -> {
                 if ((double) os[2] == 1.)

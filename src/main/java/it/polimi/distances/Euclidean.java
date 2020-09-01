@@ -2,12 +2,15 @@ package it.polimi.distances;
 
 import it.polimi.domain.Location;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Euclidean extends Distance {
 
     private float[][] distanceMatrix;
     private float[][] durationsMatrix;
+    private Map<String, Integer> indicesMap;
 
     public Euclidean(List<Location> locations) {
         super(locations);
