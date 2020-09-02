@@ -46,6 +46,7 @@ public class WorstRemoval implements RuinOperator {
             Job worst = getWorst(cloned);
             for (VehicleRoute vehicleRoute : cloned.getRoutes()) {
                 double time = vehicleRoute.getEndTime();
+                double distance = vehicleRoute.getTotalDistance();
                 int idx = vehicleRoute.getJobs().indexOf(worst);
                 if (idx >= 0) {
                     Location prev = (idx == 0)
@@ -59,11 +60,14 @@ public class WorstRemoval implements RuinOperator {
                             vrp.getDistance().distance(cur, next);
                     time += vrp.getDistance().duration(prev, next) - vrp.getDistance().duration(prev, cur) -
                             vrp.getDistance().duration(cur, next);
+                    distance += vrp.getDistance().distance(prev, next) - vrp.getDistance().distance(prev, cur) -
+                            vrp.getDistance().distance(cur, next);
                     int size = vehicleRoute.getTotalSize() - worst.getSize();
                     Job removed = vehicleRoute.getJobs().remove(idx);
                     cloned.getUnassignedJobs().add(removed);
                     vehicleRoute.setEndTime(time);
                     vehicleRoute.setTotalSize(size);
+                    vehicleRoute.setTotalDistance(distance);
                 }
             }
         }

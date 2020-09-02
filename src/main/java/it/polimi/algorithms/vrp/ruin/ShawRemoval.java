@@ -63,13 +63,14 @@ public class ShawRemoval implements RuinOperator {
         for (VehicleRoute vr : vrps.getRoutes()) {
             List<Job> newJobs = new ArrayList<>();
             Location prev, cur = vrp.getDepot().getLocation();
-            double time = 0;
+            double time = 0, distance = 0;
             int size = 0;
             for (Job j : vr.getJobs()) {
                 if (!unassignedJobSet.contains(j)) {
                     prev = cur;
                     cur = j.getLocation();
                     time += vrp.getDistance().duration(prev, cur);
+                    distance += vrp.getDistance().distance(prev, cur);
                     size += j.getSize();
                     cost += vrp.getDistance().distance(prev, cur);
                     newJobs.add(new Job(j.getId(), cur, j.getSize(), time));
@@ -77,7 +78,7 @@ public class ShawRemoval implements RuinOperator {
             }
             time += vrp.getDistance().duration(cur, vrp.getDepot().getLocation());
             cost += vrp.getDistance().distance(cur, vrp.getDepot().getLocation());
-            newVehicleRoutes.add(new VehicleRoute(newJobs, vr.getVehicle(), time, size));
+            newVehicleRoutes.add(new VehicleRoute(newJobs, vr.getVehicle(), time, distance, size));
         }
         unassignedJobs.addAll(vrps.getUnassignedJobs()); // include also previous unassigned jobs
         cost += unassignedJobs.size() * vrp.getObjectiveFunction().getUnassignedPenalty();
