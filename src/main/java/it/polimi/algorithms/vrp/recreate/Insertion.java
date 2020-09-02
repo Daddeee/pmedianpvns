@@ -42,7 +42,7 @@ public class Insertion {
         return delta < ins.getDelta();
     }
 
-    public double perform() {
+    public void perform() {
         this.vehicleRoute.getJobs().add(this.position, this.job);
         Location prev = (this.position == 0)
                 ? vrp.getDepot().getLocation()
@@ -56,6 +56,5 @@ public class Insertion {
         this.vehicleRoute.setEndTime(this.vehicleRoute.getEndTime() + deltaTime);
         this.vehicleRoute.setTotalDistance(this.vehicleRoute.getTotalDistance() + deltaDistance);
         this.vehicleRoute.setTotalSize(this.vehicleRoute.getTotalSize() + this.job.getSize());
-        return vrp.getDistance().distance(prev, cur) + vrp.getDistance().distance(cur, next) - vrp.getDistance().distance(prev, next);
     }
 }

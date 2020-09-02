@@ -3,7 +3,6 @@ package it.polimi.algorithms.vrp.recreate;
 import it.polimi.algorithms.alns.RecreateOperator;
 import it.polimi.algorithms.vrp.constraints.JobConstraint;
 import it.polimi.algorithms.vrp.constraints.RouteConstraint;
-import it.polimi.domain.Location;
 import it.polimi.domain.Solution;
 import it.polimi.domain.routing.*;
 import org.slf4j.Logger;
@@ -102,10 +101,10 @@ public class GreedyInsertion implements RecreateOperator {
                     bestInsertionOverall.getVehicleRoute().getVehicle().getId() + ", capacity=" +
                     bestInsertionOverall.getVehicleRoute().getVehicle().getCapacity() + ", size=" +
                     bestInsertionOverall.getVehicleRoute().getTotalSize());*/
-            double insertionCost = bestInsertionOverall.perform();
+            bestInsertionOverall.perform();
             //LOGGER.info("Inserted job. New size: " + bestInsertionOverall.getVehicleRoute().getTotalSize());
             insertionsCount++;
-            vrps.setCost(vrps.getCost() + insertionCost - vrp.getObjectiveFunction().getUnassignedPenalty());
+            vrps.setCost(vrps.getCost() + bestInsertionOverall.getDelta() - vrp.getObjectiveFunction().getUnassignedPenalty());
             vrps.getUnassignedJobs().remove(bestInsertionOverall.getJob());
             for (VehicleRoute route : vrps.getRoutes()) {
                 if (bestInsertions.containsKey(route) &&

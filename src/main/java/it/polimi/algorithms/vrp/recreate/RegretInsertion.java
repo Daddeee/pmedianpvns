@@ -121,9 +121,9 @@ public class RegretInsertion implements RecreateOperator {
                 return vrps;
             }
 
-            double insertionCost = bestInsertionOverall.perform();
+            bestInsertionOverall.perform();
             insertionsCount++;
-            vrps.setCost(vrps.getCost() + insertionCost - vrp.getObjectiveFunction().getUnassignedPenalty());
+            vrps.setCost(vrps.getCost() + bestInsertionOverall.getDelta() - vrp.getObjectiveFunction().getUnassignedPenalty());
             vrps.getUnassignedJobs().remove(bestInsertionOverall.getJob());
             bestInsertions.clear();
             secondBestInsertions.clear();
