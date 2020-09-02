@@ -1,5 +1,6 @@
 package it.polimi.algorithms.vrp.objectives;
 
+import it.polimi.distances.Distance;
 import it.polimi.domain.Location;
 import it.polimi.domain.routing.Job;
 import it.polimi.domain.routing.VehicleRoute;
@@ -28,5 +29,13 @@ public class TotalDistance extends ObjectiveFunction {
         }
         cost += solution.getUnassignedJobs().size() * unassignedPenalty;
         return cost;
+    }
+
+    @Override
+    public double getDelta(Job toInsert, Job prev, Job next, VehicleRoutingProblemSolution sol) {
+        Distance d = vrp.getDistance();
+        return d.distance(prev.getLocation(), toInsert.getLocation()) +
+                d.distance(toInsert.getLocation(), next.getLocation()) -
+                d.distance(prev.getLocation(), next.getLocation());
     }
 }

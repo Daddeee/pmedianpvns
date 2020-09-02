@@ -63,7 +63,7 @@ public class GreedyInsertion implements RecreateOperator {
                         if (!satisfiesJobConstraints)
                             continue;
 
-                        double delta = getInsertionDelta(prev, next, cur);
+                        double delta = getInsertionDelta(prev, next, cur, vrps);
 
                         Insertion insertion = new Insertion(cur, vehicleRoute, i, delta, vrp);
                         if (insertion.isBetterThan(bestInsertion))
@@ -71,7 +71,7 @@ public class GreedyInsertion implements RecreateOperator {
                     }
                     prev = next;
                     next = vrp.getDepot();
-                    double delta = getInsertionDelta(prev, next, cur);
+                    double delta = getInsertionDelta(prev, next, cur, vrps);
 
                     boolean satisfiesJobConstraints = true;
                     for (JobConstraint jobConstraint : vrp.getJobConstraints()) {
@@ -119,11 +119,7 @@ public class GreedyInsertion implements RecreateOperator {
         return vrps;
     }
 
-    protected double getInsertionDelta(Job prev, Job next, Job cur) {
-        return dist(prev, cur) + dist(cur, next) - dist(prev, next);
-    }
-
-    private double dist(Job j1, Job j2) {
-        return this.vrp.getDistance().distance(j1.getLocation(), j2.getLocation());
+    protected double getInsertionDelta(Job prev, Job next, Job cur, VehicleRoutingProblemSolution vrps) {
+        return vrp.getObjectiveFunction().getDelta(cur, prev, next, vrps);
     }
 }

@@ -2,6 +2,7 @@ package it.polimi.algorithms.vrp.recreate;
 
 import it.polimi.domain.routing.Job;
 import it.polimi.domain.routing.VehicleRoutingProblem;
+import it.polimi.domain.routing.VehicleRoutingProblemSolution;
 
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -23,8 +24,8 @@ public class RegretInsertionWithNoise extends RegretInsertion {
     }
 
     @Override
-    protected double getInsertionDelta(Job prev, Job next, Job cur) {
-        return Math.max(0, super.getInsertionDelta(prev, next, cur) + getNoise());
+    protected double getInsertionDelta(Job prev, Job next, Job cur, VehicleRoutingProblemSolution vrps) {
+        return Math.max(0, super.getInsertionDelta(cur, prev, next, vrps) + getNoise());
     }
 
     private double getNoise() {
