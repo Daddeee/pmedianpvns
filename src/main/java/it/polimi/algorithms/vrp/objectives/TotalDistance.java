@@ -18,15 +18,8 @@ public class TotalDistance extends ObjectiveFunction {
     @Override
     public double getCost(VehicleRoutingProblemSolution solution) {
         double cost = 0.;
-        for (VehicleRoute route : solution.getRoutes()) {
-            Location cur = vrp.getDepot().getLocation(), prev;
-            for (Job job : route.getJobs()) {
-                prev = cur;
-                cur = job.getLocation();
-                cost += vrp.getDistance().distance(prev, cur);
-            }
-            cost += vrp.getDistance().distance(cur, vrp.getDepot().getLocation());
-        }
+        for (VehicleRoute route : solution.getRoutes())
+            cost += route.getTotalDistance();
         cost += solution.getUnassignedJobs().size() * unassignedPenalty;
         return cost;
     }
