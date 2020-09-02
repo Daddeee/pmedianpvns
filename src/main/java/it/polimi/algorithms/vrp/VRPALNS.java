@@ -120,14 +120,18 @@ public class VRPALNS extends ALNS {
 
         public VRPALNS build() {
             StoppingCondition stoppingCondition = new MaxIterationStopping(this.maxNumSegments);
-            OperatorsSelector operatorsSelector = new OperatorsSelector(this.d1, this.d2, this.d3, this.r);
-            AcceptanceCriterion acceptanceCriterion = new TemperatureAcceptance(this.tstart, this.c);
-            if (seed != null)
+            if (seed != null) {
+                OperatorsSelector operatorsSelector = new OperatorsSelector(this.d1, this.d2, this.d3, this.r, seed);
+                AcceptanceCriterion acceptanceCriterion = new TemperatureAcceptance(this.tstart, this.c, seed);
                 return new VRPALNS(eps, p, pworst, phi, chi, psi, maxN, segmentSize, stoppingCondition, operatorsSelector,
                         acceptanceCriterion, seed);
-            else
+            }
+            else {
+                OperatorsSelector operatorsSelector = new OperatorsSelector(this.d1, this.d2, this.d3, this.r);
+                AcceptanceCriterion acceptanceCriterion = new TemperatureAcceptance(this.tstart, this.c);
                 return new VRPALNS(eps, p, pworst, phi, chi, psi, maxN, segmentSize, stoppingCondition, operatorsSelector,
                         acceptanceCriterion);
+            }
         }
     }
 

@@ -49,8 +49,9 @@ public class VRP {
                 .setPworst(3)
                 .setTstart(getTStart(vrp, initial)).setC(0.99975)
                 .setD1(33).setD2(9).setD3(13).setR(0.1)
-                .setMaxNumSegments(100).setSegmentSize(100)
+                .setMaxNumSegments(10).setSegmentSize(50)
                 .setMaxN(getMaxN(vrp))
+                .setSeed(1337)
                 .build();
 
         VehicleRoutingProblemSolution solution = (VehicleRoutingProblemSolution) vrpalns.run(vrp, initial);
