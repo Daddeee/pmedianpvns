@@ -31,6 +31,6 @@ for key in routes:
     colors = [ label_colors[l] for l in labels ]
 
     ax.scatter(points[:,0], points[:,1], c=colors)
-    ax.plot(points[:,0], points[:,1])
+    ax.plot(points[:,0], points[:,1], 'k')
 
 plt.show()

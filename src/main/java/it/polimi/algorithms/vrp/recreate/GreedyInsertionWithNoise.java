@@ -24,8 +24,8 @@ public class GreedyInsertionWithNoise extends GreedyInsertion {
     }
 
     @Override
-    protected double getInsertionDelta(Job prev, Job next, Job cur, VehicleRoutingProblemSolution vrps) {
-        return Math.max(0, super.getInsertionDelta(prev, next, cur, vrps) + getNoise());
+    protected double calculateInsertionDelta(Job prev, Job next, Job cur, VehicleRoutingProblemSolution vrps) {
+        return Math.max(0, super.calculateInsertionDelta(prev, next, cur, vrps) + getNoise());
     }
 
     private double getNoise() {

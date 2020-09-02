@@ -1,5 +1,7 @@
 package it.polimi;
 
+import it.polimi.algorithms.alns.RecreateOperator;
+import it.polimi.algorithms.alns.RuinOperator;
 import it.polimi.algorithms.vrp.VRPALNS;
 import it.polimi.algorithms.vrp.constraints.CapacityConstraint;
 import it.polimi.algorithms.vrp.objectives.TotalDistance;
@@ -26,7 +28,7 @@ public class VRP {
         AugeratReader reader = new AugeratReader(filePath, numVehicles);
 
         VehicleRoutingProblem vrp = reader.getVrp();
-        VehicleRoutingProblemSolution solution = solve(executorService, vrp);
+        VehicleRoutingProblemSolution solution = solve(executorService, vrp, new ArrayList<>(), new ArrayList<>());
 
         for (VehicleRoute route : solution.getRoutes()) {
             String idxs = route.getJobs().stream().map(Job::getId).collect(Collectors.joining(" "));
@@ -34,7 +36,8 @@ public class VRP {
         }
     }
 
-    public static VehicleRoutingProblemSolution solve(ExecutorService executorService, VehicleRoutingProblem vrp) {
+    public static VehicleRoutingProblemSolution solve(ExecutorService executorService, VehicleRoutingProblem vrp,
+                                                      List<RuinOperator> ruinOperators, List<RecreateOperator> recreateOperators) {
         vrp.setObjectiveFunction(new TotalDistance(vrp, 1e6));
         vrp.addConstraint(new CapacityConstraint());
         //vrp.addConstraint(new MaxServiceTimeConstraint(8*60*60, vrp));
@@ -49,10 +52,12 @@ public class VRP {
                 .setPworst(3)
                 .setTstart(getTStart(vrp, initial)).setC(0.99975)
                 .setD1(33).setD2(9).setD3(13).setR(0.1)
-                .setMaxNumSegments(10).setSegmentSize(50)
+                .setMaxNumSegments(50).setSegmentSize(100)
                 .setMaxN(getMaxN(vrp))
-                .setSeed(1337)
                 .build();
+
+        ruinOperators.forEach(vrpalns::addRuinOperator);
+        recreateOperators.forEach(vrpalns::addRecreateOperator);
 
         VehicleRoutingProblemSolution solution = (VehicleRoutingProblemSolution) vrpalns.run(vrp, initial);
 

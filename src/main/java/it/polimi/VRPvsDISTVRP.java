@@ -2,6 +2,7 @@ package it.polimi;
 
 import it.polimi.algorithms.balancedpmedian.BalancedPMedianVNS;
 import it.polimi.algorithms.multiperiodbalancedpmedian.MultiPeriodBalancedPMedianExact;
+import it.polimi.algorithms.vrp.ruin.ZoneRemoval;
 import it.polimi.distances.Distance;
 import it.polimi.distances.Euclidean;
 import it.polimi.distances.Haversine;
@@ -66,7 +67,7 @@ public class VRPvsDISTVRP {
             periodLocations.add(0, depot);
             periodMedians.add(0, -1);
             Distance dist = new Haversine(periodLocations);
-            ZonePenalyzed penalyzed = new ZonePenalyzed(periodLocations, dist, periodLocations.size()*0.4, periodMedians);
+            ZonePenalyzed penalyzed = new ZonePenalyzed(periodLocations, dist, 5., periodMedians);
             penalyzed.applyPenalty();
 
             Map<String, Integer> mediansMap = new HashMap<>();
@@ -74,22 +75,26 @@ public class VRPvsDISTVRP {
                     .forEach(i -> mediansMap.put(periodLocations.get(i).getId(), periodMedians.get(i)));
 
             VehicleRoutingProblem zonedProblem = getProblem(periodLocations, numVehicles, penalyzed);
-            VehicleRoutingProblemSolution zonedSolution = VRP.solve(executorService, zonedProblem);
+            VehicleRoutingProblemSolution zonedSolution = VRP.solve(executorService, zonedProblem,
+                    Collections.singletonList(new ZoneRemoval(mediansMap, zonedProblem, 0.4)), new ArrayList<>());
             VRPWriter.write("instances/results/routing/zoned/" + period + ".csv", zonedSolution, zonedProblem, mediansMap);
 
             VehicleRoutingProblem unzonedProblem = getProblem(periodLocations, numVehicles, dist);
-            VehicleRoutingProblemSolution unzonedSolution = VRP.solve(executorService, unzonedProblem);
+            VehicleRoutingProblemSolution unzonedSolution = VRP.solve(executorService, unzonedProblem,
+                    new ArrayList<>(), new ArrayList<>());
             VRPWriter.write("instances/results/routing/unzoned/" + period + ".csv", unzonedSolution, unzonedProblem);
         }
     }
 
     private static VehicleRoutingProblem getProblem(List<Location> locations, int numVehicles, Distance distance) {
+        int size = 1;
+        int capacity = (int) Math.floor(1.5 * locations.size() / numVehicles);
         Location depot = locations.get(0);
         Job depotJob = new Job(depot.getId(), depot, 0, 0);
         List<Job> jobs = IntStream.range(1, locations.size())
                 .mapToObj(locations::get)
-                .map(l -> new Job(l.getId(), l, 1, 0.)).collect(Collectors.toList());
-        List<Vehicle> vehicles = IntStream.range(0, numVehicles).mapToObj(i -> new Vehicle("" + i, Integer.MAX_VALUE))
+                .map(l -> new Job(l.getId(), l, size, 0.)).collect(Collectors.toList());
+        List<Vehicle> vehicles = IntStream.range(0, numVehicles).mapToObj(i -> new Vehicle("" + i, capacity))
                 .collect(Collectors.toList());
         return new VehicleRoutingProblem(depotJob, jobs, vehicles, distance);
     }

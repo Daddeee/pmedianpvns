@@ -3,6 +3,7 @@ package it.polimi.algorithms.vrp.recreate;
 import it.polimi.algorithms.alns.RecreateOperator;
 import it.polimi.algorithms.vrp.constraints.JobConstraint;
 import it.polimi.algorithms.vrp.constraints.RouteConstraint;
+import it.polimi.domain.Location;
 import it.polimi.domain.Solution;
 import it.polimi.domain.routing.*;
 import org.slf4j.Logger;
@@ -62,7 +63,7 @@ public class GreedyInsertion implements RecreateOperator {
                         if (!satisfiesJobConstraints)
                             continue;
 
-                        double delta = getInsertionDelta(prev, next, cur, vrps);
+                        double delta = calculateInsertionDelta(prev, next, cur, vrps);
 
                         Insertion insertion = new Insertion(cur, vehicleRoute, i, delta, vrp);
                         if (insertion.isBetterThan(bestInsertion))
@@ -70,7 +71,7 @@ public class GreedyInsertion implements RecreateOperator {
                     }
                     prev = next;
                     next = vrp.getDepot();
-                    double delta = getInsertionDelta(prev, next, cur, vrps);
+                    double delta = calculateInsertionDelta(prev, next, cur, vrps);
 
                     boolean satisfiesJobConstraints = true;
                     for (JobConstraint jobConstraint : vrp.getJobConstraints()) {
@@ -101,10 +102,14 @@ public class GreedyInsertion implements RecreateOperator {
                     bestInsertionOverall.getVehicleRoute().getVehicle().getId() + ", capacity=" +
                     bestInsertionOverall.getVehicleRoute().getVehicle().getCapacity() + ", size=" +
                     bestInsertionOverall.getVehicleRoute().getTotalSize());*/
+
+            // IMPORTANT: repeat calculation because insertion's delta could be different from objective function's
+            // delta, for example if adding random noise when selecting insertions.
+            double insertionCost = calculateInsertionDelta(bestInsertionOverall, vrps);
+
             bestInsertionOverall.perform();
-            //LOGGER.info("Inserted job. New size: " + bestInsertionOverall.getVehicleRoute().getTotalSize());
             insertionsCount++;
-            vrps.setCost(vrps.getCost() + bestInsertionOverall.getDelta() - vrp.getObjectiveFunction().getUnassignedPenalty());
+            vrps.setCost(vrps.getCost() + insertionCost - vrp.getObjectiveFunction().getUnassignedPenalty());
             vrps.getUnassignedJobs().remove(bestInsertionOverall.getJob());
             for (VehicleRoute route : vrps.getRoutes()) {
                 if (bestInsertions.containsKey(route) &&
@@ -118,7 +123,15 @@ public class GreedyInsertion implements RecreateOperator {
         return vrps;
     }
 
-    protected double getInsertionDelta(Job prev, Job next, Job cur, VehicleRoutingProblemSolution vrps) {
+    protected double calculateInsertionDelta(Job prev, Job next, Job cur, VehicleRoutingProblemSolution vrps) {
         return vrp.getObjectiveFunction().getDelta(cur, prev, next, vrps);
+    }
+
+    protected double calculateInsertionDelta(Insertion insertion, VehicleRoutingProblemSolution vrps) {
+        int position = insertion.getPosition();
+        List<Job> jobs = insertion.getVehicleRoute().getJobs();
+        Job prev = (position == 0) ? vrp.getDepot() : jobs.get(position - 1);
+        Job next = (position == jobs.size()) ? vrp.getDepot() : jobs.get(position);
+        return vrp.getObjectiveFunction().getDelta(insertion.getJob(), prev, next, vrps);
     }
 }

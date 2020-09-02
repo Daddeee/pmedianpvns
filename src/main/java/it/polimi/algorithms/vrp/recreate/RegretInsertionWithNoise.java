@@ -24,8 +24,8 @@ public class RegretInsertionWithNoise extends RegretInsertion {
     }
 
     @Override
-    protected double getInsertionDelta(Job prev, Job next, Job cur, VehicleRoutingProblemSolution vrps) {
-        return Math.max(0, super.getInsertionDelta(cur, prev, next, vrps) + getNoise());
+    protected double calculateInsertionDelta(Job prev, Job next, Job cur, VehicleRoutingProblemSolution vrps) {
+        return Math.max(0, super.calculateInsertionDelta(cur, prev, next, vrps) + getNoise());
     }
 
     private double getNoise() {
