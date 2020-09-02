@@ -3,10 +3,10 @@ package it.polimi.algorithms.vrp.ruin;
 import it.polimi.algorithms.alns.RuinOperator;
 import it.polimi.domain.Location;
 import it.polimi.domain.Solution;
-import it.polimi.domain.routing.Job;
-import it.polimi.domain.routing.VehicleRoute;
-import it.polimi.domain.routing.VehicleRoutingProblem;
-import it.polimi.domain.routing.VehicleRoutingProblemSolution;
+import it.polimi.domain.vrp.Job;
+import it.polimi.domain.vrp.VehicleRoute;
+import it.polimi.domain.vrp.VehicleRoutingProblem;
+import it.polimi.domain.vrp.VehicleRoutingProblemSolution;
 import it.polimi.utils.Rand;
 
 import java.util.*;

@@ -7,7 +7,7 @@ import it.polimi.algorithms.vrp.constraints.CapacityConstraint;
 import it.polimi.algorithms.vrp.objectives.TotalDistance;
 import it.polimi.algorithms.vrp.recreate.GreedyInsertion;
 import it.polimi.domain.Location;
-import it.polimi.domain.routing.*;
+import it.polimi.domain.vrp.*;
 import it.polimi.io.AugeratReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

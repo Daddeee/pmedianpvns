@@ -10,7 +10,7 @@ import it.polimi.algorithms.vrp.ruin.ShawRemoval;
 import it.polimi.algorithms.vrp.ruin.WorstRemoval;
 import it.polimi.domain.Problem;
 import it.polimi.domain.Solution;
-import it.polimi.domain.routing.VehicleRoutingProblem;
+import it.polimi.domain.vrp.VehicleRoutingProblem;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;

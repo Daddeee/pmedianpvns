@@ -1,6 +1,5 @@
-package it.polimi.domain.routing;
+package it.polimi.domain.vrp;
 
-import it.polimi.domain.Location;
 import it.polimi.domain.Solution;
 
 import java.util.ArrayList;

@@ -1,18 +1,15 @@
 package it.polimi;
 
 import it.polimi.algorithms.balancedpmedian.BalancedPMedianVNS;
-import it.polimi.algorithms.multiperiodbalancedpmedian.MultiPeriodBalancedPMedianExact;
 import it.polimi.algorithms.vrp.ruin.ZoneRemoval;
 import it.polimi.distances.Distance;
-import it.polimi.distances.Euclidean;
 import it.polimi.distances.Haversine;
 import it.polimi.distances.ZonePenalyzed;
 import it.polimi.domain.Location;
-import it.polimi.domain.Service;
-import it.polimi.domain.routing.Job;
-import it.polimi.domain.routing.Vehicle;
-import it.polimi.domain.routing.VehicleRoutingProblem;
-import it.polimi.domain.routing.VehicleRoutingProblemSolution;
+import it.polimi.domain.vrp.Job;
+import it.polimi.domain.vrp.Vehicle;
+import it.polimi.domain.vrp.VehicleRoutingProblem;
+import it.polimi.domain.vrp.VehicleRoutingProblemSolution;
 import it.polimi.io.LatLngCSVReader;
 import it.polimi.io.VRPWriter;
 

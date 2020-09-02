@@ -5,10 +5,10 @@ import it.polimi.algorithms.vrp.constraints.CapacityConstraint;
 import it.polimi.algorithms.vrp.objectives.TotalDistance;
 import it.polimi.algorithms.vrp.recreate.GreedyInsertion;
 import it.polimi.domain.Location;
-import it.polimi.domain.routing.Job;
-import it.polimi.domain.routing.VehicleRoute;
-import it.polimi.domain.routing.VehicleRoutingProblem;
-import it.polimi.domain.routing.VehicleRoutingProblemSolution;
+import it.polimi.domain.vrp.Job;
+import it.polimi.domain.vrp.VehicleRoute;
+import it.polimi.domain.vrp.VehicleRoutingProblem;
+import it.polimi.domain.vrp.VehicleRoutingProblemSolution;
 import it.polimi.io.AugeratReader;
 
 import java.io.BufferedReader;

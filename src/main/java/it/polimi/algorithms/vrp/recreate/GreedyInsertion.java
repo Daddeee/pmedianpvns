@@ -3,9 +3,8 @@ package it.polimi.algorithms.vrp.recreate;
 import it.polimi.algorithms.alns.RecreateOperator;
 import it.polimi.algorithms.vrp.constraints.JobConstraint;
 import it.polimi.algorithms.vrp.constraints.RouteConstraint;
-import it.polimi.domain.Location;
 import it.polimi.domain.Solution;
-import it.polimi.domain.routing.*;
+import it.polimi.domain.vrp.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

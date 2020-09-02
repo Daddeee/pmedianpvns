@@ -1,9 +1,9 @@
 package it.polimi.io;
 
-import it.polimi.domain.routing.Job;
-import it.polimi.domain.routing.VehicleRoute;
-import it.polimi.domain.routing.VehicleRoutingProblem;
-import it.polimi.domain.routing.VehicleRoutingProblemSolution;
+import it.polimi.domain.vrp.Job;
+import it.polimi.domain.vrp.VehicleRoute;
+import it.polimi.domain.vrp.VehicleRoutingProblem;
+import it.polimi.domain.vrp.VehicleRoutingProblemSolution;
 
 import java.io.BufferedWriter;
 import java.io.File;

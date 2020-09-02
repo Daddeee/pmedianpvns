@@ -1,8 +1,7 @@
 package it.polimi.algorithms.vrp.objectives;
 
-import it.polimi.domain.routing.Job;
-import it.polimi.domain.routing.VehicleRoutingProblem;
-import it.polimi.domain.routing.VehicleRoutingProblemSolution;
+import it.polimi.domain.vrp.Job;
+import it.polimi.domain.vrp.VehicleRoutingProblemSolution;
 
 public abstract class ObjectiveFunction {
 

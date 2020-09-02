@@ -1,4 +1,4 @@
-package it.polimi.domain.routing;
+package it.polimi.domain.vrp;
 
 import it.polimi.domain.Location;
 

@@ -1,9 +1,9 @@
 package it.polimi.algorithms.vrp.recreate;
 
 import it.polimi.domain.Location;
-import it.polimi.domain.routing.Job;
-import it.polimi.domain.routing.VehicleRoute;
-import it.polimi.domain.routing.VehicleRoutingProblem;
+import it.polimi.domain.vrp.Job;
+import it.polimi.domain.vrp.VehicleRoute;
+import it.polimi.domain.vrp.VehicleRoutingProblem;
 
 public class Insertion {
     public static final Insertion NO_INSERTION = new Insertion(null, null, -1, Double.MAX_VALUE, null);

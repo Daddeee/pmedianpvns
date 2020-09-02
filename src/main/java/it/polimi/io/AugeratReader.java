@@ -3,9 +3,9 @@ package it.polimi.io;
 import it.polimi.distances.Distance;
 import it.polimi.distances.Euclidean;
 import it.polimi.domain.Location;
-import it.polimi.domain.routing.Job;
-import it.polimi.domain.routing.Vehicle;
-import it.polimi.domain.routing.VehicleRoutingProblem;
+import it.polimi.domain.vrp.Job;
+import it.polimi.domain.vrp.Vehicle;
+import it.polimi.domain.vrp.VehicleRoutingProblem;
 
 import java.io.BufferedReader;
 import java.io.FileReader;

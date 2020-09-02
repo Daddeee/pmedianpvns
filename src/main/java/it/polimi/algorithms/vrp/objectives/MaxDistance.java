@@ -2,10 +2,10 @@ package it.polimi.algorithms.vrp.objectives;
 
 import it.polimi.distances.Distance;
 import it.polimi.domain.Location;
-import it.polimi.domain.routing.Job;
-import it.polimi.domain.routing.VehicleRoute;
-import it.polimi.domain.routing.VehicleRoutingProblem;
-import it.polimi.domain.routing.VehicleRoutingProblemSolution;
+import it.polimi.domain.vrp.Job;
+import it.polimi.domain.vrp.VehicleRoute;
+import it.polimi.domain.vrp.VehicleRoutingProblem;
+import it.polimi.domain.vrp.VehicleRoutingProblemSolution;
 
 public class MaxDistance extends ObjectiveFunction {
     private final VehicleRoutingProblem vrp;

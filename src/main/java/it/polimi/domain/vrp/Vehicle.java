@@ -1,4 +1,4 @@
-package it.polimi.domain.routing;
+package it.polimi.domain.vrp;
 
 import java.util.HashSet;
 import java.util.Objects;
