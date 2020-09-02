@@ -45,14 +45,14 @@ public class MultiPeriodBalancedPMedianExact extends ExactSolver {
     private int[] initialMedians;
     private int[] initialSuperMedians;
 
-    public MultiPeriodBalancedPMedianExact(String modelPath, String resultPath, List<Service> services, int p, int m, float alpha) {
+    public MultiPeriodBalancedPMedianExact(String modelPath, String resultPath, List<Service> services, Distance distance,
+                                           int p, int m) {
         super(modelPath);
         this.n = services.size();
         this.p = p;
         this.m = m;
         this.resultPath = resultPath;
-        parseParams(services);
-        this.alpha = alpha;
+        parseParams(services, distance);
     }
 
     public int[] getMedians() {
@@ -67,17 +67,25 @@ public class MultiPeriodBalancedPMedianExact extends ExactSolver {
         return periods;
     }
 
-    private void parseParams(List<Service> services) {
+    private void parseParams(List<Service> services, Distance distance) {
         this.services = services;
-        Distance dist = new Haversine(this.services.stream().map(Service::getLocation).collect(Collectors.toList()));
-        this.c = dist.getDurationsMatrix();
+        this.c = distance.getDurationsMatrix();
         this.r = new int[n];
         this.d = new int[n];
+        float distSum = 0f;
+        int count = 0;
         for (int i=0; i<n; i++) {
             Service s = services.get(i);
             r[i] = s.getReleaseDate();
             d[i] = Math.min(r[i] + s.getDays(), m) - 1;
+            for (int j = 0; j < n; j++) {
+                if (i != j) {
+                    distSum += c[i][j];
+                    count += 1;
+                }
+            }
         }
+        this.alpha = 0.2f * distSum / count;
     }
 
     public void run(int[] initialPeriods, int[] initialMedians, int[] initialSuperMedians) {

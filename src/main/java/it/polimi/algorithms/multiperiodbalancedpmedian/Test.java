@@ -12,15 +12,17 @@ import java.util.stream.Collectors;
 public class Test {
     public static void main(String[] args) {
         TestCSVReader reader = new TestCSVReader();
-        List<Service> services = reader.readCSV(new File("instances/test.csv"));
-        int p = 2;
-        int m = 2;
+        reader.readCSV(new File("instances/test.csv"));
+        List<Service> services = reader.getServices();
+        Distance distance = new Euclidean(services.stream().map(Service::getLocation).collect(Collectors.toList()));
+        int p = 3;
+        int m = 3;
 
         System.out.println("=============== EXACT STANDALONE ===============");
         String modelPath = "models/tdp/multi-period-balanced-p-median.mod";
         String resultPath = "instances/test-exact.csv";
-        MultiPeriodBalancedPMedianExact exactOnly = new MultiPeriodBalancedPMedianExact(modelPath, resultPath, services, p,
-                m, getAlpha(services));
+        MultiPeriodBalancedPMedianExact exactOnly = new MultiPeriodBalancedPMedianExact(modelPath, resultPath, services,
+                distance, p, m);
         exactOnly.run();
 
         System.out.println("====================== VNS ======================");
@@ -38,22 +40,5 @@ public class Test {
                 m, getAlpha(services));
         exactAndCh.run(ch.getPeriods(), ch.getMedians(), ch.getSupermedians());
         */
-    }
-
-    private static float getAlpha(List<Service> services) {
-        Distance dist = new Euclidean(services.stream().map(Service::getLocation).collect(Collectors.toList()));
-        float[][] d = dist.getDurationsMatrix();
-        int n = services.size();
-        float distSum = 0f;
-        int count = 0;
-        for (int i=0; i<n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (i != j) {
-                    distSum += d[i][j];
-                    count += 1;
-                }
-            }
-        }
-        return 0.2f * distSum / count;
     }
 }

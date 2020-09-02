@@ -21,7 +21,8 @@ public class ConstructionHeuristicTest {
         //SpeedyReader reader = new SpeedyReader();
         //List<Service> services = reader.readCSV(new File("instances/speedy/grosseto-test.csv"));
         TestCSVReader reader = new TestCSVReader();
-        List<Service> services = reader.readCSV(new File("instances/test.csv"));
+        reader.readCSV(new File("instances/test.csv"));
+        List<Service> services = reader.getServices();
         List<Location> locations = services.stream().map(Service::getLocation).collect(Collectors.toList());
         Distance dist = new Haversine(locations);
         float[][] c = dist.getDurationsMatrix();

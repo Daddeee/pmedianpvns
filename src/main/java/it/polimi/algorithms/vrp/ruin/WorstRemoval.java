@@ -39,7 +39,7 @@ public class WorstRemoval implements RuinOperator {
     public Solution ruin(Solution s) {
         VehicleRoutingProblemSolution vrps = (VehicleRoutingProblemSolution) s;
         VehicleRoutingProblemSolution cloned = vrps.clone();
-        int q = 4 + random.nextInt(Math.min(100, (int) Math.floor(eps*vrps.getNumJobs())) - 4);
+        int q = 4 + random.nextInt(Math.min(96, (int) Math.floor(eps*(Math.max(vrps.getNumJobs() - 4, 0)))));
         //LOGGER.info("Starting to remove " + q + " jobs.");
         double cost = cloned.getCost();
         for (int i=0; i<q; i++) {

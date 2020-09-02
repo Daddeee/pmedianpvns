@@ -19,7 +19,8 @@ public class BalancedPMedianExact {
     public static void main( String[] args ) {
         //List<Location> locations = LatLngCSVReader.read("instances/speedy/grosseto-test.csv");
         TestCSVReader reader = new TestCSVReader();
-        List<Service> services = reader.readCSV(new File("instances/test.csv"));
+        reader.readCSV(new File("instances/test.csv"));
+        List<Service> services = reader.getServices();
         int p = 3;
         solve(services.stream().map(Service::getLocation).collect(Collectors.toList()), p);
     }

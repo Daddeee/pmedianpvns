@@ -17,8 +17,10 @@ for i in range(0, n):
 	s = 1
 	rows.append([x,y,r,d,s])
 
-with open('test.csv', mode='w') as file:
-    writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+depot = [randrange(0, x_max), randrange(0,y_max)]
 
-    for row in rows:
-    	writer.writerow(row)
+with open('test.csv', mode='w') as file:
+	writer = csv.writer(file, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+	writer.writerow(depot)
+	for row in rows:
+		writer.writerow(row)

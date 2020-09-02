@@ -12,14 +12,28 @@ import java.util.List;
 
 public class TestCSVReader {
 
-    public List<Service> readCSV(File csv) {
+    private Location depot;
+    private List<Service> services;
+
+    public Location getDepot() {
+        return depot;
+    }
+
+    public List<Service> getServices() {
+        return services;
+    }
+
+    public void readCSV(File csv) {
         List<Service> services = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(csv));
             String line = reader.readLine();
+            String[] splitted = line.split(",");
+            depot = new Location("depot", Double.parseDouble(splitted[0]), Double.parseDouble(splitted[1]));
+            line = reader.readLine();
             int count = 0;
             while (line != null) {
-                String[] splitted = line.split(",");
+                splitted = line.split(",");
                 if (splitted.length < 5) break;
                 double x = Double.parseDouble(splitted[0]);
                 double y = Double.parseDouble(splitted[1]);
@@ -32,7 +46,7 @@ public class TestCSVReader {
                 count++;
             }
             reader.close();
-            return services;
+            this.services = services;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

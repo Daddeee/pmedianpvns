@@ -26,6 +26,15 @@ public class VRP {
         AugeratReader reader = new AugeratReader(filePath, numVehicles);
 
         VehicleRoutingProblem vrp = reader.getVrp();
+        VehicleRoutingProblemSolution solution = solve(executorService, vrp);
+
+        for (VehicleRoute route : solution.getRoutes()) {
+            String idxs = route.getJobs().stream().map(Job::getId).collect(Collectors.joining(" "));
+            LOGGER.info(route.getVehicle().getId() + ": " + idxs);
+        }
+    }
+
+    public static VehicleRoutingProblemSolution solve(ExecutorService executorService, VehicleRoutingProblem vrp) {
         vrp.setObjectiveFunction(new TotalDistance(vrp, 1e6));
         vrp.addConstraint(new CapacityConstraint());
         //vrp.addConstraint(new MaxServiceTimeConstraint(8*60*60, vrp));
@@ -47,10 +56,7 @@ public class VRP {
         VehicleRoutingProblemSolution solution = (VehicleRoutingProblemSolution) vrpalns.run(vrp, initial);
 
         LOGGER.info("Final solution obj=" + solution.getCost());
-        for (VehicleRoute route : solution.getRoutes()) {
-            String idxs = route.getJobs().stream().map(Job::getId).collect(Collectors.joining(" "));
-            LOGGER.info(route.getVehicle().getId() + ": " + idxs);
-        }
+        return solution;
     }
 
     private static VehicleRoutingProblemSolution getInitialSolution(ExecutorService executorService, VehicleRoutingProblem vrp) {
