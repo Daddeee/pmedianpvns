@@ -28,13 +28,10 @@ public class VRP {
         VehicleRoutingProblem vrp = reader.getVrp();
         VehicleRoutingProblemSolution solution = solve(executorService, vrp);
 
-        double cost = 0.;
         for (VehicleRoute route : solution.getRoutes()) {
-            cost += route.getTotalDistance();
             String idxs = route.getJobs().stream().map(Job::getId).collect(Collectors.joining(" "));
             LOGGER.info(route.getVehicle().getId() + ": " + idxs);
         }
-        LOGGER.info("Total distance per route sum: " + cost);
     }
 
     public static VehicleRoutingProblemSolution solve(ExecutorService executorService, VehicleRoutingProblem vrp) {
