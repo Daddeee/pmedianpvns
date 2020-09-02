@@ -2,10 +2,8 @@ package it.polimi.algorithms.multiperiodbalancedpmedian;
 
 import it.polimi.algorithms.balancedpmedian.BalancedPMedianVNS;
 import it.polimi.distances.Distance;
-import it.polimi.distances.Euclidean;
-import it.polimi.distances.Haversine;
 import it.polimi.domain.Location;
-import it.polimi.domain.Service;
+import it.polimi.domain.Customer;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -19,7 +17,7 @@ public class ConstructionHeuristic {
     private int p;
     private int m;
 
-    private List<Service> services;
+    private List<Customer> customers;
     private Class<? extends Distance> distClazz;
     private int[] initPeriods;
 
@@ -28,19 +26,19 @@ public class ConstructionHeuristic {
     private int[] medians;
     private int[] supermedians;
 
-    public ConstructionHeuristic(List<Service> services, Class<? extends Distance> distClazz, int p, int m) {
-        this.services = services;
+    public ConstructionHeuristic(List<Customer> customers, Class<? extends Distance> distClazz, int p, int m) {
+        this.customers = customers;
         this.distClazz = distClazz;
-        this.n = services.size();
+        this.n = customers.size();
         this.p = p;
         this.m = m;
     }
 
-    public ConstructionHeuristic(List<Service> services, Class<? extends Distance> distClazz, int p, int m,
+    public ConstructionHeuristic(List<Customer> customers, Class<? extends Distance> distClazz, int p, int m,
                                  int[] initPeriods) {
-        this.services = services;
+        this.customers = customers;
         this.distClazz = distClazz;
-        this.n = services.size();
+        this.n = customers.size();
         this.p = p;
         this.m = m;
         this.initPeriods = initPeriods;
@@ -73,7 +71,7 @@ public class ConstructionHeuristic {
 
         int[][] medianPeriods = oneHotEncode(medianIndices.stream().map(i -> periods[i]).collect(Collectors.toList()), m);
 
-        List<Location> periodicLocations = medianIndices.stream().map(services::get).map(Service::getLocation)
+        List<Location> periodicLocations = medianIndices.stream().map(customers::get).map(Customer::getLocation)
                 .collect(Collectors.toList());
 
         Distance dist = getDistance(periodicLocations);
@@ -113,8 +111,8 @@ public class ConstructionHeuristic {
     }
 
     private void solveSinglePeriodPMedian(int t, List<Integer> pindices) {
-        List<Service> pservices = pindices.stream().map(i -> services.get(i)).collect(Collectors.toList());
-        List<Location> plocations = pservices.stream().map(Service::getLocation).collect(Collectors.toList());
+        List<Customer> pservices = pindices.stream().map(i -> customers.get(i)).collect(Collectors.toList());
+        List<Location> plocations = pservices.stream().map(Customer::getLocation).collect(Collectors.toList());
         Distance dist = getDistance(plocations);
         BalancedPMedianVNS vns = new BalancedPMedianVNS(pservices.size(), p, dist.getDurationsMatrix());
         vns.run();
@@ -146,14 +144,14 @@ public class ConstructionHeuristic {
     }
 
     private Map<Integer, List<Integer>> buildPeriodsFromServices() {
-        int[] idxs = argsort(services.stream().mapToInt(Service::getDays).toArray());
+        int[] idxs = argsort(customers.stream().mapToInt(Customer::getDays).toArray());
         int[] periodCounts = new int[m];
         Map<Integer, List<Integer>> periodServices = new HashMap<>();
 
         for (int i=0; i<n; i++) {
             int s = idxs[i];
-            int r = services.get(s).getReleaseDate();
-            int d = Math.min(r + services.get(s).getDays(), m) - 1;
+            int r = customers.get(s).getReleaseDate();
+            int d = Math.min(r + customers.get(s).getDays(), m) - 1;
 
             int min = Integer.MAX_VALUE, minIdx = -1;
             for (int j=r; j<= d; j++) {

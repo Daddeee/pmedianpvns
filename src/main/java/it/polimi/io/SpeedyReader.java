@@ -1,7 +1,7 @@
 package it.polimi.io;
 
 import it.polimi.domain.Location;
-import it.polimi.domain.Service;
+import it.polimi.domain.Customer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 
 public class SpeedyReader {
 
-    public List<Service> read(String branch, Calendar startDate, int t) {
+    public List<Customer> read(String branch, Calendar startDate, int t) {
         String dirPath = "instances/speedy/" + t + "/";
         Calendar endDate = (Calendar) startDate.clone();
         endDate.add(Calendar.DATE, t - 1);
@@ -33,7 +33,7 @@ public class SpeedyReader {
         return readCSV(file);
     }
 
-    public List<Service> readCSV(File csv) {
+    public List<Customer> readCSV(File csv) {
         List<Location> locations = new ArrayList<>();
         List<Calendar> releaseDates = new ArrayList<>();
         List<Integer> days = new ArrayList<>();
@@ -67,7 +67,7 @@ public class SpeedyReader {
             List<Integer> releaseDays = parseReleaseDates(releaseDates);
 
             return IntStream.range(0, locations.size())
-                    .mapToObj(i -> new Service(locations.get(i), releaseDays.get(i), days.get(i), scores.get(i)))
+                    .mapToObj(i -> new Customer(locations.get(i), releaseDays.get(i), days.get(i), scores.get(i)))
                     .collect(Collectors.toList());
 
         } catch (IOException e) {

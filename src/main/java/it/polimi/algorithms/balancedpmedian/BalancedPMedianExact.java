@@ -4,8 +4,7 @@ import com.ampl.*;
 import it.polimi.distances.Distance;
 import it.polimi.distances.Haversine;
 import it.polimi.domain.Location;
-import it.polimi.domain.Service;
-import it.polimi.io.LatLngCSVReader;
+import it.polimi.domain.Customer;
 import it.polimi.io.TestCSVReader;
 import it.polimi.io.ZonesCSVWriter;
 
@@ -20,9 +19,9 @@ public class BalancedPMedianExact {
         //List<Location> locations = LatLngCSVReader.read("instances/speedy/grosseto-test.csv");
         TestCSVReader reader = new TestCSVReader();
         reader.readCSV(new File("instances/test.csv"));
-        List<Service> services = reader.getServices();
+        List<Customer> customers = reader.getCustomers();
         int p = 3;
-        solve(services.stream().map(Service::getLocation).collect(Collectors.toList()), p);
+        solve(customers.stream().map(Customer::getLocation).collect(Collectors.toList()), p);
     }
 
     public static void solve(List<Location> locations, int p) {

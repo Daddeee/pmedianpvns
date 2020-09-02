@@ -4,8 +4,7 @@ import it.polimi.distances.Distance;
 import it.polimi.distances.Euclidean;
 import it.polimi.distances.Haversine;
 import it.polimi.domain.Location;
-import it.polimi.domain.Service;
-import it.polimi.io.SpeedyReader;
+import it.polimi.domain.Customer;
 import it.polimi.io.TestCSVReader;
 import it.polimi.io.ZonesCSVWriter;
 
@@ -22,24 +21,24 @@ public class ConstructionHeuristicTest {
         //List<Service> services = reader.readCSV(new File("instances/speedy/grosseto-test.csv"));
         TestCSVReader reader = new TestCSVReader();
         reader.readCSV(new File("instances/test.csv"));
-        List<Service> services = reader.getServices();
-        List<Location> locations = services.stream().map(Service::getLocation).collect(Collectors.toList());
+        List<Customer> customers = reader.getCustomers();
+        List<Location> locations = customers.stream().map(Customer::getLocation).collect(Collectors.toList());
         Distance dist = new Haversine(locations);
         float[][] c = dist.getDurationsMatrix();
         int p = 4;
         int m = 3;
-        ConstructionHeuristic ch = new ConstructionHeuristic(services, Euclidean.class, p, m);
+        ConstructionHeuristic ch = new ConstructionHeuristic(customers, Euclidean.class, p, m);
         long start = System.nanoTime();
 
         ch.run();
 
         long end = System.nanoTime();
         double elapsed_time = (end - start) / 1e6;
-        double obj = computeObjectivefunction(services.size(), p, m, ch.getMedians(), ch.getSupermedians(), c);
+        double obj = computeObjectivefunction(customers.size(), p, m, ch.getMedians(), ch.getSupermedians(), c);
         int[] customerPeriods = ch.getPeriods();
         int[] customerMedians = ch.getMedians();
         int[] superMedians = ch.getSupermedians();
-        int[] customerSuperMedians = IntStream.range(0, services.size()).map(i -> superMedians[customerMedians[i]]).toArray();
+        int[] customerSuperMedians = IntStream.range(0, customers.size()).map(i -> superMedians[customerMedians[i]]).toArray();
         Map<Integer, Integer> medianCounts = getCounts(customerMedians);
         Map<Integer, Integer> superMedianCounts = getCounts(superMedians);
 

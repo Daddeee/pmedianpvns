@@ -1,15 +1,14 @@
 package it.polimi.domain;
 
-import java.util.Calendar;
 import java.util.Objects;
 
-public class Service {
+public class Customer {
     private Location location;
     private int releaseDate;
     private int days;
     private int score;
 
-    public Service(final Location location, final int releaseDate, final int days, final int score) {
+    public Customer(final Location location, final int releaseDate, final int days, final int score) {
         this.location = location;
         this.releaseDate = releaseDate;
         this.days = days;
@@ -35,12 +34,12 @@ public class Service {
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;
-        if (!(o instanceof Service)) return false;
-        final Service service = (Service) o;
-        return getDays() == service.getDays() &&
-                getScore() == service.getScore() &&
-                Objects.equals(getLocation(), service.getLocation()) &&
-                Objects.equals(getReleaseDate(), service.getReleaseDate());
+        if (!(o instanceof Customer)) return false;
+        final Customer customer = (Customer) o;
+        return getDays() == customer.getDays() &&
+                getScore() == customer.getScore() &&
+                Objects.equals(getLocation(), customer.getLocation()) &&
+                Objects.equals(getReleaseDate(), customer.getReleaseDate());
     }
 
     @Override

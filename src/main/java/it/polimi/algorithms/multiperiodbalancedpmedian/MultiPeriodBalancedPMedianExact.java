@@ -1,30 +1,22 @@
 package it.polimi.algorithms.multiperiodbalancedpmedian;
 
 import com.ampl.*;
-import com.ampl.Set;
 import it.polimi.algorithms.ExactSolver;
 import it.polimi.distances.Distance;
-import it.polimi.distances.Euclidean;
-import it.polimi.distances.Haversine;
 import it.polimi.domain.Location;
-import it.polimi.domain.Service;
-import it.polimi.io.SpeedyReader;
-import it.polimi.io.TestCSVReader;
+import it.polimi.domain.Customer;
 import it.polimi.io.ZonesCSVWriter;
 import it.polimi.utils.Pair;
 
-import javax.xml.crypto.Data;
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class MultiPeriodBalancedPMedianExact extends ExactSolver {
 
     // utils
     private String resultPath;
-    private List<Service> services;
+    private List<Customer> customers;
 
     // params
     private int n;
@@ -45,14 +37,14 @@ public class MultiPeriodBalancedPMedianExact extends ExactSolver {
     private int[] initialMedians;
     private int[] initialSuperMedians;
 
-    public MultiPeriodBalancedPMedianExact(String modelPath, String resultPath, List<Service> services, Distance distance,
+    public MultiPeriodBalancedPMedianExact(String modelPath, String resultPath, List<Customer> customers, Distance distance,
                                            int p, int m) {
         super(modelPath);
-        this.n = services.size();
+        this.n = customers.size();
         this.p = p;
         this.m = m;
         this.resultPath = resultPath;
-        parseParams(services, distance);
+        parseParams(customers, distance);
     }
 
     public int[] getMedians() {
@@ -67,15 +59,15 @@ public class MultiPeriodBalancedPMedianExact extends ExactSolver {
         return periods;
     }
 
-    private void parseParams(List<Service> services, Distance distance) {
-        this.services = services;
+    private void parseParams(List<Customer> customers, Distance distance) {
+        this.customers = customers;
         this.c = distance.getDurationsMatrix();
         this.r = new int[n];
         this.d = new int[n];
         float distSum = 0f;
         int count = 0;
         for (int i=0; i<n; i++) {
-            Service s = services.get(i);
+            Customer s = customers.get(i);
             r[i] = s.getReleaseDate();
             d[i] = Math.min(r[i] + s.getDays(), m) - 1;
             for (int j = 0; j < n; j++) {
@@ -115,7 +107,7 @@ public class MultiPeriodBalancedPMedianExact extends ExactSolver {
         printCounts(superMedianCounts, title2);
         printIndexes(medianCounts.keySet(), Arrays.stream(periods).boxed().collect(Collectors.toList()), "median periods");
         printIndexes(medianCounts.keySet(), Arrays.stream(superMedians).boxed().collect(Collectors.toList()), "medians' supermedians");
-        Location[] locs = this.services.stream().map(Service::getLocation).toArray(Location[]::new);
+        Location[] locs = this.customers.stream().map(Customer::getLocation).toArray(Location[]::new);
         ZonesCSVWriter.write(this.resultPath, locs, this.periods, this.medians, customerSuperMedians);
     }
 

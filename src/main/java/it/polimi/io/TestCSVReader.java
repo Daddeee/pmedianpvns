@@ -1,7 +1,7 @@
 package it.polimi.io;
 
 import it.polimi.domain.Location;
-import it.polimi.domain.Service;
+import it.polimi.domain.Customer;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -13,18 +13,18 @@ import java.util.List;
 public class TestCSVReader {
 
     private Location depot;
-    private List<Service> services;
+    private List<Customer> customers;
 
     public Location getDepot() {
         return depot;
     }
 
-    public List<Service> getServices() {
-        return services;
+    public List<Customer> getCustomers() {
+        return customers;
     }
 
     public void readCSV(File csv) {
-        List<Service> services = new ArrayList<>();
+        List<Customer> customers = new ArrayList<>();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(csv));
             String line = reader.readLine();
@@ -41,12 +41,12 @@ public class TestCSVReader {
                 int r = Integer.parseInt(splitted[2]);
                 int days = Integer.parseInt(splitted[3]);
                 int score = Integer.parseInt(splitted[4]);
-                services.add(new Service(loc, r, days, score));
+                customers.add(new Customer(loc, r, days, score));
                 line = reader.readLine();
                 count++;
             }
             reader.close();
-            this.services = services;
+            this.customers = customers;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

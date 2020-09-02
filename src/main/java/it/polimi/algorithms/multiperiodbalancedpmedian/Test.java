@@ -2,7 +2,7 @@ package it.polimi.algorithms.multiperiodbalancedpmedian;
 
 import it.polimi.distances.Distance;
 import it.polimi.distances.Euclidean;
-import it.polimi.domain.Service;
+import it.polimi.domain.Customer;
 import it.polimi.io.TestCSVReader;
 
 import java.io.File;
@@ -13,22 +13,22 @@ public class Test {
     public static void main(String[] args) {
         TestCSVReader reader = new TestCSVReader();
         reader.readCSV(new File("instances/test.csv"));
-        List<Service> services = reader.getServices();
-        Distance distance = new Euclidean(services.stream().map(Service::getLocation).collect(Collectors.toList()));
+        List<Customer> customers = reader.getCustomers();
+        Distance distance = new Euclidean(customers.stream().map(Customer::getLocation).collect(Collectors.toList()));
         int p = 3;
         int m = 3;
 
         System.out.println("=============== EXACT STANDALONE ===============");
         String modelPath = "models/tdp/multi-period-balanced-p-median.mod";
         String resultPath = "instances/test-exact.csv";
-        MultiPeriodBalancedPMedianExact exactOnly = new MultiPeriodBalancedPMedianExact(modelPath, resultPath, services,
+        MultiPeriodBalancedPMedianExact exactOnly = new MultiPeriodBalancedPMedianExact(modelPath, resultPath, customers,
                 distance, p, m);
         exactOnly.run();
 
         System.out.println("====================== VNS ======================");
         String resultPathVNS = "instances/test-vns.csv";
-        int kmax = Math.max(services.size() / 10, 5);
-        MultiPeriodBalancedPMedianVNS vns = new MultiPeriodBalancedPMedianVNS(resultPathVNS, services, Euclidean.class,
+        int kmax = Math.max(customers.size() / 10, 5);
+        MultiPeriodBalancedPMedianVNS vns = new MultiPeriodBalancedPMedianVNS(resultPathVNS, customers, Euclidean.class,
                 p, m, kmax);
         vns.run();
         /*

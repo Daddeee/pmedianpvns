@@ -4,7 +4,7 @@ import com.ampl.*;
 import it.polimi.distances.Distance;
 import it.polimi.distances.Haversine;
 import it.polimi.domain.Location;
-import it.polimi.domain.Service;
+import it.polimi.domain.Customer;
 import it.polimi.io.SpeedyReader;
 import it.polimi.io.ZonesCSVWriter;
 
@@ -13,7 +13,6 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -24,14 +23,14 @@ public class BalancedMultiPeriodPMedian {
         int p = 5;
         int t = 2;
         //List<Service> services = reader.read("Empoli", startDate, t);
-        List<Service> services = reader.readCSV(new File("instances/speedy/grosseto-test.csv"));
-        System.out.println("Number of services: " + services.size());
-        runModel(services, p, t);
+        List<Customer> customers = reader.readCSV(new File("instances/speedy/grosseto-test.csv"));
+        System.out.println("Number of services: " + customers.size());
+        runModel(customers, p, t);
     }
 
-    private static void runModel(final List<Service> services, final int p, final int t) {
-        double[] releaseDates = services.stream().map(Service::getReleaseDate).mapToDouble(Integer::doubleValue).toArray();
-        double[] dueDates = getDueDates(releaseDates, services, t);
+    private static void runModel(final List<Customer> customers, final int p, final int t) {
+        double[] releaseDates = customers.stream().map(Customer::getReleaseDate).mapToDouble(Integer::doubleValue).toArray();
+        double[] dueDates = getDueDates(releaseDates, customers, t);
 
         AMPL ampl = new AMPL();
         try {
@@ -41,7 +40,7 @@ public class BalancedMultiPeriodPMedian {
             ampl.setOption("cplex_options", "threads=2");
 
             Parameter n = ampl.getParameter("n");
-            n.setValues(services.size());
+            n.setValues(customers.size());
 
             Parameter pp = ampl.getParameter("p");
             pp.setValues(p);
@@ -55,7 +54,7 @@ public class BalancedMultiPeriodPMedian {
             Parameter dd = ampl.getParameter("d");
             dd.setValues(dueDates);
 
-            Distance dist = new Haversine(services.stream().map(Service::getLocation).collect(Collectors.toList()));
+            Distance dist = new Haversine(customers.stream().map(Customer::getLocation).collect(Collectors.toList()));
             float[][] distMatrix = dist.getDurationsMatrix();
             Tuple[] tuples = new Tuple[distMatrix.length*distMatrix.length];
             double[] distances = new double[distMatrix.length*distMatrix.length];
@@ -82,7 +81,7 @@ public class BalancedMultiPeriodPMedian {
             Variable x = ampl.getVariable("x");
             DataFrame df = x.getValues();
 
-            int[][] labels = new int[t][services.size()];
+            int[][] labels = new int[t][customers.size()];
             for (int i=0; i<t; i++)
                 Arrays.fill(labels[i], -1);
 
@@ -104,9 +103,9 @@ public class BalancedMultiPeriodPMedian {
                     periodLabels[i] = rescaleMap.get(periodLabels[i]);
                 }
 
-                Location[] locs = IntStream.range(0, services.size()).filter(i -> periodLabels[i] != -1)
-                        .mapToObj(i -> services.get(i))
-                        .map(Service::getLocation)
+                Location[] locs = IntStream.range(0, customers.size()).filter(i -> periodLabels[i] != -1)
+                        .mapToObj(i -> customers.get(i))
+                        .map(Customer::getLocation)
                         .toArray(Location[]::new);
 
                 int[] filteredLabels = Arrays.stream(periodLabels).filter(l -> l != -1).toArray();
@@ -133,9 +132,9 @@ public class BalancedMultiPeriodPMedian {
         }
     }
 
-    private static double[] getDueDates(final double[] releaseDates, final List<Service> services, final int t) {
+    private static double[] getDueDates(final double[] releaseDates, final List<Customer> customers, final int t) {
         return IntStream.range(0, releaseDates.length)
-                .mapToDouble(i -> Math.min(releaseDates[i] + services.get(i).getDays() - 1, t - 1))
+                .mapToDouble(i -> Math.min(releaseDates[i] + customers.get(i).getDays() - 1, t - 1))
                 .toArray();
     }
 

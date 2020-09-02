@@ -1,13 +1,8 @@
 package it.polimi.algorithms.multiperiodbalancedpmedian;
 
-import com.ampl.AMPL;
-import com.ampl.DataFrame;
-import com.ampl.Parameter;
-import com.ampl.Variable;
 import it.polimi.distances.Distance;
-import it.polimi.distances.Haversine;
 import it.polimi.domain.Location;
-import it.polimi.domain.Service;
+import it.polimi.domain.Customer;
 import it.polimi.io.ZonesCSVWriter;
 import it.polimi.utils.Pair;
 import org.slf4j.Logger;
@@ -23,7 +18,7 @@ public class MultiPeriodBalancedPMedianVNS {
     private final Random random = new Random(1337);
 
     private String resultPath;
-    private List<Service> services;
+    private List<Customer> customers;
     private Class<? extends Distance> distClazz;
 
     // params
@@ -44,22 +39,22 @@ public class MultiPeriodBalancedPMedianVNS {
     private double objective;
     private double elapsedTime;
 
-    public MultiPeriodBalancedPMedianVNS(String resultPath, List<Service> services, Class<? extends Distance> distClazz,
+    public MultiPeriodBalancedPMedianVNS(String resultPath, List<Customer> customers, Class<? extends Distance> distClazz,
                                          int p, int m, int kmax) {
         this.resultPath = resultPath;
-        this.services = services;
+        this.customers = customers;
         this.distClazz = distClazz;
-        this.n = services.size();
+        this.n = customers.size();
         this.p = p;
         this.m = m;
         this.r = new int[n];
         this.d = new int[n];
         for (int i=0; i<n; i++) {
-            Service s = services.get(i);
+            Customer s = customers.get(i);
             r[i] = s.getReleaseDate();
             d[i] = Math.min(r[i] + s.getDays(), m) - 1;
         }
-        Distance dist = getDistance(services.stream().map(Service::getLocation).collect(Collectors.toList()));
+        Distance dist = getDistance(customers.stream().map(Customer::getLocation).collect(Collectors.toList()));
         this.c = dist.getDurationsMatrix();
         this.alpha = getAlpha(n, c);
         this.xavg = (double) n / (m*p);
@@ -84,7 +79,7 @@ public class MultiPeriodBalancedPMedianVNS {
 
     public void run() {
         long start = System.nanoTime();
-        ConstructionHeuristic ch = new ConstructionHeuristic(services, distClazz, p, m);
+        ConstructionHeuristic ch = new ConstructionHeuristic(customers, distClazz, p, m);
         ch.run();
 
         int[] mediansCur = ch.getMedians();
@@ -111,7 +106,7 @@ public class MultiPeriodBalancedPMedianVNS {
                 swap(periodsCur, swapin, swapout);
             }
 
-            ch = new ConstructionHeuristic(services, distClazz, p, m, periodsCur);
+            ch = new ConstructionHeuristic(customers, distClazz, p, m, periodsCur);
             ch.run();
 
             mediansCur = ch.getMedians();
@@ -240,7 +235,7 @@ public class MultiPeriodBalancedPMedianVNS {
         printCounts(superMedianCounts, title2);
         printIndexes(medianCounts.keySet(), Arrays.stream(periods).boxed().collect(Collectors.toList()), "median periods");
         printIndexes(medianCounts.keySet(), Arrays.stream(superMedians).boxed().collect(Collectors.toList()), "medians' supermedians");
-        Location[] locs = this.services.stream().map(Service::getLocation).toArray(Location[]::new);
+        Location[] locs = this.customers.stream().map(Customer::getLocation).toArray(Location[]::new);
         ZonesCSVWriter.write(this.resultPath, locs, this.periods, this.medians, customerSuperMedians);
     }
 
