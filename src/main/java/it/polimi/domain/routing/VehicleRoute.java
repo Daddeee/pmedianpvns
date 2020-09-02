@@ -10,12 +10,14 @@ public class VehicleRoute {
     private final List<Job> jobs;
     private final Vehicle vehicle;
     private double endTime;
+    private double totalDistance;
     private int totalSize;
 
-    public VehicleRoute(List<Job> jobs, Vehicle vehicle, double endTime, int totalSize) {
+    public VehicleRoute(List<Job> jobs, Vehicle vehicle, double endTime, double totalDistance, int totalSize) {
         this.jobs = jobs;
         this.vehicle = vehicle;
         this.endTime = endTime;
+        this.totalDistance = totalDistance;
         this.totalSize = totalSize;
     }
 
@@ -43,8 +45,16 @@ public class VehicleRoute {
         this.totalSize = totalSize;
     }
 
+    public double getTotalDistance() {
+        return totalDistance;
+    }
+
+    public void setTotalDistance(double totalDistance) {
+        this.totalDistance = totalDistance;
+    }
+
     public VehicleRoute clone() {
-        return new VehicleRoute(new ArrayList<>(jobs), vehicle, endTime, totalSize);
+        return new VehicleRoute(new ArrayList<>(jobs), vehicle, endTime, totalDistance, totalSize);
     }
 
     @Override

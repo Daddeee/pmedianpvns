@@ -98,7 +98,7 @@ public class Augerat {
 
     private static VehicleRoutingProblemSolution getInitialSolution(ExecutorService executorService, VehicleRoutingProblem vrp) {
         List<VehicleRoute> emptyRoutes = vrp.getVehicles().stream()
-                .map(v -> new VehicleRoute(new ArrayList<>(), v, 0., 0))
+                .map(v -> new VehicleRoute(new ArrayList<>(), v, 0., 0,0))
                 .collect(Collectors.toList());
         VehicleRoutingProblemSolution initial = new VehicleRoutingProblemSolution(emptyRoutes, vrp.getJobs(), 0.);
         GreedyInsertion constructionHeuristic = new GreedyInsertion(vrp, executorService);

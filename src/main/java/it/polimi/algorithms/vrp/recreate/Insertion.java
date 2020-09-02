@@ -52,7 +52,9 @@ public class Insertion {
                 : this.vehicleRoute.getJobs().get(this.position + 1).getLocation();
         Location cur = this.job.getLocation();
         double deltaTime = vrp.getDistance().duration(prev, cur) + vrp.getDistance().duration(cur, next) - vrp.getDistance().duration(prev, next);
+        double deltaDistance = vrp.getDistance().distance(prev, cur) + vrp.getDistance().distance(cur, next) - vrp.getDistance().distance(prev, next);
         this.vehicleRoute.setEndTime(this.vehicleRoute.getEndTime() + deltaTime);
+        this.vehicleRoute.setTotalDistance(this.vehicleRoute.getTotalSize() + deltaDistance);
         this.vehicleRoute.setTotalSize(this.vehicleRoute.getTotalSize() + this.job.getSize());
         return vrp.getDistance().distance(prev, cur) + vrp.getDistance().distance(cur, next) - vrp.getDistance().distance(prev, next);
     }
