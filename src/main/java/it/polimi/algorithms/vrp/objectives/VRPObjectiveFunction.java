@@ -3,11 +3,11 @@ package it.polimi.algorithms.vrp.objectives;
 import it.polimi.domain.vrp.Job;
 import it.polimi.domain.vrp.VehicleRoutingProblemSolution;
 
-public abstract class ObjectiveFunction {
+public abstract class VRPObjectiveFunction {
 
     protected final double unassignedPenalty;
 
-    public ObjectiveFunction(double unassignedPenalty) {
+    public VRPObjectiveFunction(double unassignedPenalty) {
         this.unassignedPenalty = unassignedPenalty;
     }
 

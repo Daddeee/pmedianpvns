@@ -1,0 +1,8 @@
+ALNS (best run):
+alns params: (n=254, p=5, alpha=764.9349365234375)
+alns solution: (obj=478041.1390950918, time=12910.008201)
+alns zones: (233 => 49,16 => 13,6 => 12,82 => 7,150 => 70,63 => 70,85 => 33)
+
+FINAL AVG COST = 534592.1993869162
+
+VNS:

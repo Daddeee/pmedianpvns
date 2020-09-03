@@ -38,7 +38,7 @@ public class VRP {
 
     public static VehicleRoutingProblemSolution solve(ExecutorService executorService, VehicleRoutingProblem vrp,
                                                       List<RuinOperator> ruinOperators, List<RecreateOperator> recreateOperators) {
-        vrp.setObjectiveFunction(new TotalDistance(vrp, 1e6));
+        vrp.setVRPObjectiveFunction(new TotalDistance(vrp, 1e6));
         vrp.addConstraint(new CapacityConstraint());
         //vrp.addConstraint(new MaxServiceTimeConstraint(8*60*60, vrp));
 
@@ -72,7 +72,7 @@ public class VRP {
         VehicleRoutingProblemSolution initial = new VehicleRoutingProblemSolution(emptyRoutes, vrp.getJobs(), 0.);
         GreedyInsertion constructionHeuristic = new GreedyInsertion(vrp, executorService);
         initial = (VehicleRoutingProblemSolution) constructionHeuristic.recreate(initial);
-        double cost = vrp.getObjectiveFunction().getCost(initial);
+        double cost = vrp.getVRPObjectiveFunction().getCost(initial);
         initial.setCost(cost);
         return initial;
     }

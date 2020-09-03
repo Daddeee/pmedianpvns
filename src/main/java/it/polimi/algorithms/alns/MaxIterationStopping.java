@@ -1,4 +1,4 @@
-package it.polimi.algorithms.vrp;
+package it.polimi.algorithms.alns;
 
 import it.polimi.algorithms.alns.StoppingCondition;
 import it.polimi.domain.Solution;

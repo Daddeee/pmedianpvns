@@ -71,7 +71,7 @@ public class WorstRemoval implements RuinOperator {
                 }
             }
         }
-        cost += cloned.getUnassignedJobs().size() * vrp.getObjectiveFunction().getUnassignedPenalty();
+        cost += cloned.getUnassignedJobs().size() * vrp.getVRPObjectiveFunction().getUnassignedPenalty();
         //LOGGER.info("Jobs removed. New cost: " + cost);
         cloned.setCost(cost);
         return cloned;

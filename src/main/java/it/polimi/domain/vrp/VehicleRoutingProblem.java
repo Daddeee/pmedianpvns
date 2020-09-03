@@ -1,6 +1,6 @@
 package it.polimi.domain.vrp;
 
-import it.polimi.algorithms.vrp.objectives.ObjectiveFunction;
+import it.polimi.algorithms.vrp.objectives.VRPObjectiveFunction;
 import it.polimi.algorithms.vrp.constraints.JobConstraint;
 import it.polimi.algorithms.vrp.constraints.RouteConstraint;
 import it.polimi.distances.Distance;
@@ -15,7 +15,7 @@ public class VehicleRoutingProblem implements Problem {
     private List<Vehicle> vehicles;
     private Distance distance;
 
-    private ObjectiveFunction objectiveFunction;
+    private VRPObjectiveFunction VRPObjectiveFunction;
     private List<JobConstraint> jobConstraints;
     private List<RouteConstraint> routeConstraints;
 
@@ -52,12 +52,12 @@ public class VehicleRoutingProblem implements Problem {
         return routeConstraints;
     }
 
-    public ObjectiveFunction getObjectiveFunction() {
-        return objectiveFunction;
+    public VRPObjectiveFunction getVRPObjectiveFunction() {
+        return VRPObjectiveFunction;
     }
 
-    public void setObjectiveFunction(ObjectiveFunction objectiveFunction) {
-        this.objectiveFunction = objectiveFunction;
+    public void setVRPObjectiveFunction(VRPObjectiveFunction VRPObjectiveFunction) {
+        this.VRPObjectiveFunction = VRPObjectiveFunction;
     }
 
     public void addConstraint(JobConstraint jobConstraint) {

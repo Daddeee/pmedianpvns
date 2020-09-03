@@ -14,11 +14,15 @@ import java.util.stream.Collectors;
 public class BalancedPMedianRun {
     public static void main( String[] args ) {
         List<Location> locations = LatLngCSVReader.read("instances/speedy/grosseto-test.csv");
-        int p = 6;
-        solve(locations, p);
+        int p = 5;
+        double costSum = 0.;
+        int tries = 10;
+        for (int i=0; i<tries; i++)
+            costSum += solve(locations, p);
+        System.out.println("FINAL AVG COST = " + costSum/tries);
     }
 
-    public static void solve(final List<Location> locations, final int p) {
+    public static double solve(final List<Location> locations, final int p) {
         Distance dist = new Haversine(locations);
         float[][] d = dist.getDurationsMatrix();
 
@@ -53,7 +57,8 @@ public class BalancedPMedianRun {
 
         System.out.println(")\n");
 
-        Location[] locs = locations.toArray(new Location[0]);
-        ZonesCSVWriter.write("instances/results/balanced-vns.csv", locs, vns.getLabels());
+        //Location[] locs = locations.toArray(new Location[0]);
+        //ZonesCSVWriter.write("instances/results/balanced-vns.csv", locs, vns.getLabels());
+        return vns.getObjective();
     }
 }

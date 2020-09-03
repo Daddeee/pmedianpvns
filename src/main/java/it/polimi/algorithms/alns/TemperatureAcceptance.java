@@ -1,6 +1,5 @@
-package it.polimi.algorithms.vrp;
+package it.polimi.algorithms.alns;
 
-import it.polimi.algorithms.alns.AcceptanceCriterion;
 import it.polimi.domain.Solution;
 
 import java.util.Random;

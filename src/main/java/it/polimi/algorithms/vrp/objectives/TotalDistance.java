@@ -6,7 +6,7 @@ import it.polimi.domain.vrp.VehicleRoute;
 import it.polimi.domain.vrp.VehicleRoutingProblem;
 import it.polimi.domain.vrp.VehicleRoutingProblemSolution;
 
-public class TotalDistance extends ObjectiveFunction {
+public class TotalDistance extends VRPObjectiveFunction {
     private final VehicleRoutingProblem vrp;
 
     public TotalDistance(VehicleRoutingProblem vrp, double unassignedPenalty) {

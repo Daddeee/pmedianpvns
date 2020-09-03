@@ -81,7 +81,7 @@ public class ShawRemoval implements RuinOperator {
             newVehicleRoutes.add(new VehicleRoute(newJobs, vr.getVehicle(), time, distance, size));
         }
         unassignedJobs.addAll(vrps.getUnassignedJobs()); // include also previous unassigned jobs
-        cost += unassignedJobs.size() * vrp.getObjectiveFunction().getUnassignedPenalty();
+        cost += unassignedJobs.size() * vrp.getVRPObjectiveFunction().getUnassignedPenalty();
         //LOGGER.info("Jobs removed. New cost: " + cost);
         return new VehicleRoutingProblemSolution(newVehicleRoutes, unassignedJobs, cost);
     }

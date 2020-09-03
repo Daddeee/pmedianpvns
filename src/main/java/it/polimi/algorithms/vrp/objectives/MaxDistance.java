@@ -7,7 +7,7 @@ import it.polimi.domain.vrp.VehicleRoute;
 import it.polimi.domain.vrp.VehicleRoutingProblem;
 import it.polimi.domain.vrp.VehicleRoutingProblemSolution;
 
-public class MaxDistance extends ObjectiveFunction {
+public class MaxDistance extends VRPObjectiveFunction {
     private final VehicleRoutingProblem vrp;
 
     public MaxDistance(VehicleRoutingProblem vrp, double unassignedPenalty) {

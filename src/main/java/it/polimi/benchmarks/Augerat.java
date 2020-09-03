@@ -77,7 +77,7 @@ public class Augerat {
     private static double solve(String instancePath, int numVehicles, ExecutorService executorService) {
         AugeratReader reader = new AugeratReader(instancePath, numVehicles);
         VehicleRoutingProblem vrp = reader.getVrp();
-        vrp.setObjectiveFunction(new TotalDistance(vrp, 1e6));
+        vrp.setVRPObjectiveFunction(new TotalDistance(vrp, 1e6));
         vrp.addConstraint(new CapacityConstraint());
         //vrp.addConstraint(new MaxServiceTimeConstraint(8*60*60, vrp));
         VehicleRoutingProblemSolution initial = getInitialSolution(executorService, vrp);
@@ -103,7 +103,7 @@ public class Augerat {
         VehicleRoutingProblemSolution initial = new VehicleRoutingProblemSolution(emptyRoutes, vrp.getJobs(), 0.);
         GreedyInsertion constructionHeuristic = new GreedyInsertion(vrp, executorService);
         initial = (VehicleRoutingProblemSolution) constructionHeuristic.recreate(initial);
-        double cost = vrp.getObjectiveFunction().getCost(initial);
+        double cost = vrp.getVRPObjectiveFunction().getCost(initial);
         initial.setCost(cost);
         return initial;
     }

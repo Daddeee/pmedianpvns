@@ -127,7 +127,7 @@ public class RegretInsertion implements RecreateOperator {
 
             bestInsertionOverall.perform();
             insertionsCount++;
-            vrps.setCost(vrps.getCost() + insertionCost - vrp.getObjectiveFunction().getUnassignedPenalty());
+            vrps.setCost(vrps.getCost() + insertionCost - vrp.getVRPObjectiveFunction().getUnassignedPenalty());
             vrps.getUnassignedJobs().remove(bestInsertionOverall.getJob());
             bestInsertions.clear();
             secondBestInsertions.clear();
@@ -137,7 +137,7 @@ public class RegretInsertion implements RecreateOperator {
     }
 
     protected double calculateInsertionDelta(Job prev, Job next, Job cur, VehicleRoutingProblemSolution vrps) {
-        return vrp.getObjectiveFunction().getDelta(cur, prev, next, vrps);
+        return vrp.getVRPObjectiveFunction().getDelta(cur, prev, next, vrps);
     }
 
     protected double calculateInsertionDelta(Insertion insertion, VehicleRoutingProblemSolution vrps) {
@@ -145,6 +145,6 @@ public class RegretInsertion implements RecreateOperator {
         List<Job> jobs = insertion.getVehicleRoute().getJobs();
         Job prev = (position == 0) ? vrp.getDepot() : jobs.get(position - 1);
         Job next = (position == jobs.size()) ? vrp.getDepot() : jobs.get(position);
-        return vrp.getObjectiveFunction().getDelta(insertion.getJob(), prev, next, vrps);
+        return vrp.getVRPObjectiveFunction().getDelta(insertion.getJob(), prev, next, vrps);
     }
 }

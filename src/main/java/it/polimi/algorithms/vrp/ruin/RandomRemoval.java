@@ -67,7 +67,7 @@ public class RandomRemoval implements RuinOperator {
         }
         List<Job> unassignedJobsList = new ArrayList<>(unassignedJobs);
         unassignedJobsList.addAll(vrps.getUnassignedJobs()); // fill with old unassigned
-        cost += unassignedJobsList.size() * vrp.getObjectiveFunction().getUnassignedPenalty();
+        cost += unassignedJobsList.size() * vrp.getVRPObjectiveFunction().getUnassignedPenalty();
         //LOGGER.info("Jobs removed. New cost: " + cost);
         return new VehicleRoutingProblemSolution(newVehicleRoutes, unassignedJobsList, cost);
     }
