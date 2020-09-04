@@ -1,4 +1,4 @@
-package it.polimi.domain.mpbpmp;
+package it.polimi.algorithms.mpbpmp.domain;
 
 import it.polimi.domain.Location;
 

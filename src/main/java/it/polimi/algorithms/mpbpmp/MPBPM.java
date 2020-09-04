@@ -1,5 +1,7 @@
 package it.polimi.algorithms.mpbpmp;
 
+import it.polimi.algorithms.mpbpmp.domain.MPBPMPSolution;
+import it.polimi.algorithms.mpbpmp.domain.MPBPMProblem;
 import it.polimi.distances.Distance;
 import it.polimi.distances.Euclidean;
 import it.polimi.domain.Customer;
@@ -19,8 +21,11 @@ public class MPBPM {
         int m = 3;
         int[] r = customers.stream().mapToInt(Customer::getReleaseDate).toArray();
         int[] d = customers.stream().mapToInt(c -> c.getReleaseDate() + c.getDays() - 1).toArray();
-        MPBPMProblemVNDS vnds = new MPBPMProblemVNDS(customers.size(), p, m, distance.getDistancesMatrix(), r, d);
-        vnds.run();
-        System.out.println("DONE: " + vnds.getObjective());
+        //MPBPMProblem problem = new MPBPMProblem()
+
+        //MPBPMProblemVNDS vnds = new MPBPMProblemVNDS();
+        //MPBPMPSolution solution = vnds.run();
+
+        //System.out.println("DONE: " + vnds.getObjective());
     }
 }

@@ -1,13 +1,13 @@
 package it.polimi.algorithms.multiperiodbalancedpmedian;
 
 import it.polimi.algorithms.mpbpmp.MPBPMProblemVNDS;
+import it.polimi.algorithms.mpbpmp.domain.MPBPMPSolution;
+import it.polimi.algorithms.mpbpmp.domain.MPBPMProblem;
+import it.polimi.algorithms.mpbpmp.domain.Service;
 import it.polimi.distances.Distance;
 import it.polimi.distances.Euclidean;
 import it.polimi.domain.Customer;
-import it.polimi.domain.Location;
-import it.polimi.domain.mpbpmp.MPBPMPSolution;
 import it.polimi.io.TestCSVReader;
-import it.polimi.io.ZonesCSVWriter;
 import it.polimi.utils.Pair;
 
 import java.io.File;
@@ -19,26 +19,28 @@ public class Test {
         TestCSVReader reader = new TestCSVReader();
         reader.readCSV(new File("instances/test.csv"));
         List<Customer> customers = reader.getCustomers();
+        List<Service> services = customers.stream()
+                .map(c -> new Service(c.getLocation().getId(), c.getLocation(), c.getReleaseDate(),
+                        c.getReleaseDate() + c.getDays() - 1))
+                .collect(Collectors.toList());
         Distance distance = new Euclidean(customers.stream().map(Customer::getLocation).collect(Collectors.toList()));
-        int p = 3;
-        int m = 3;
+        int p = 2;
+        int m = 2;
 
-        /*
+
         System.out.println("=============== EXACT STANDALONE ===============");
         String modelPath = "models/tdp/multi-period-balanced-p-median.mod";
         String resultPath = "instances/test-exact.csv";
         MultiPeriodBalancedPMedianExact exactOnly = new MultiPeriodBalancedPMedianExact(modelPath, resultPath, customers,
                 distance, p, m);
         exactOnly.run();
-        */
 
         System.out.println("====================== VNDS ======================");
         String resultPathVNS = "instances/test-vns.csv";
-        MPBPMProblemVNDS vnds = new MPBPMProblemVNDS(customers.size(), p, m, distance.getDistancesMatrix(),
-                customers.stream().mapToInt(Customer::getReleaseDate).toArray(),
-                customers.stream().mapToInt(c -> c.getReleaseDate() + c.getDays() - 1).toArray());
-        vnds.run();
-        logResults(vnds);
+        MPBPMProblem problem = new MPBPMProblem(services, m, p, distance);
+        MPBPMProblemVNDS vnds = new MPBPMProblemVNDS(1337);
+        MPBPMPSolution solution = vnds.run(problem);
+        logResults(solution);
         /*
         System.out.println("=============== HEURISTIC + EXACT ===============");
         String resultPath1 = "instances/test-hybrid.csv";
@@ -50,12 +52,13 @@ public class Test {
         */
     }
 
-    private static void logResults(MPBPMProblemVNDS vnds) {
-        Map<Integer, Integer> medianCounts = getCounts(vnds.getLabels());
-        System.out.println("vnds solution: (obj=" + vnds.getObjective() + ", time=" + vnds.getElapsedTime() + ")");
+    private static void logResults(MPBPMPSolution solution) {
+        Map<Integer, Integer> medianCounts = solution.getPointsPerMedian().entrySet().stream()
+                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().size()));
+        System.out.println("vnds solution: (obj=" + solution.getObjective() + ", time=" + solution.getElapsedTime() + ")");
         String title = "medians count";
         printCounts(medianCounts, title);
-        printIndexes(medianCounts.keySet(), Arrays.stream(vnds.getPeriods()).boxed().collect(Collectors.toList()), "median periods");
+        printIndexes(medianCounts.keySet(), Arrays.stream(solution.getPeriods()).boxed().collect(Collectors.toList()), "median periods");
     }
 
     private static <T> void printIndexes(Collection<Integer> indexes, List<T> arr, String title) {

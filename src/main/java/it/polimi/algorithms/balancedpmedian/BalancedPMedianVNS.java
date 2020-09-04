@@ -15,7 +15,7 @@ import java.util.Random;
 public class BalancedPMedianVNS {
     protected final int MAX_SOLUTION_CHANGES = 100;
     private final Logger LOGGER = LoggerFactory.getLogger(MostUniformPMedianVNS.class);
-    private final Random random = new Random();
+    private final Random random;
 
     private int n;
     private int p;
@@ -29,12 +29,21 @@ public class BalancedPMedianVNS {
     private float objective;
 
     public BalancedPMedianVNS(final int n, final int p, final float[][] d) {
+        this(n, p, d, new Random());
+    }
+
+    public BalancedPMedianVNS(final int n, final int p, final float[][] d, int seed) {
+        this(n, p, d, new Random(seed));
+    }
+
+    public BalancedPMedianVNS(final int n, final int p, final float[][] d, Random random) {
         this.n = n;
         this.p = p;
         this.d = d;
         this.alpha = getAlpha(n, d);
         this.avg = (float) n / p;
         this.kmax = p;
+        this.random = random;
     }
 
     public float getAlpha() {
@@ -55,7 +64,7 @@ public class BalancedPMedianVNS {
 
     public void run() {
         // optimal values
-        int[] xopt = Rand.permutateRange(0, n);
+        int[] xopt = Rand.permutateRange(0, n, random);
         int[] xidxopt = getIndexes(xopt);
         int[][] c = getClosestMedians(xopt);
         int[] c1 = c[0];

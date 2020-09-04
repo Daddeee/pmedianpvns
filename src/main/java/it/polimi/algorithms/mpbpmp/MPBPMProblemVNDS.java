@@ -1,85 +1,168 @@
 package it.polimi.algorithms.mpbpmp;
 
-import it.polimi.algorithms.balancedpmedian.BalancedFastInterchange;
+import com.google.common.collect.Lists;
 import it.polimi.algorithms.balancedpmedian.BalancedPMedianVNS;
-import it.polimi.algorithms.mostuniformpmedian.MostUniformPMedianVNS;
-import it.polimi.utils.Pair;
-import it.polimi.utils.Rand;
+import it.polimi.algorithms.mpbpmp.domain.MPBPMPSolution;
+import it.polimi.algorithms.mpbpmp.domain.MPBPMProblem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class MPBPMProblemVNDS {
     protected final int MAX_SOLUTION_CHANGES = 100;
     private final Logger LOGGER = LoggerFactory.getLogger(MPBPMProblemVNDS.class);
-    private final Random random = new Random();
+    private final Random random;
 
-    private int n;
-    private int p;
-    private int m;
-    private float[][] c;
-    private int[] r;
-    private int[] d;
-    private float alpha;
-    private float avg;
-    private int kmax;
-
-    private float objective;
-    private double elapsedTime;
-    private int[] periods;
-    private int[] labels;
-    private Map<Integer, List<Integer>> periodPoints;
-    private Map<Integer, Integer> mediansCount;
-
-    public MPBPMProblemVNDS(int n, int p, int m, float[][] c, int[] r, int[] d) {
-        this.n = n;
-        this.p = p;
-        this.m = m;
-        this.c = c;
-        this.r = r;
-        this.d = d;
-        this.alpha = getAlpha(n, c);
-        this.avg = (float) n / (p*m);
-        this.kmax = getKMax();
+    public MPBPMProblemVNDS() {
+        this(new Random());
     }
 
-    private int getKMax() {
-        int count = 0;
-        for (int i=0; i<n; i++)
-            count += (d[i] - r[i] == 0) ? 0 : 1;
-        return Math.max(1, count);
+    public MPBPMProblemVNDS(int seed) {
+        this(new Random(seed));
     }
 
-    public double getElapsedTime() {
-        return elapsedTime;
+    public MPBPMProblemVNDS(Random random) {
+        this.random = random;
     }
 
-    public float getAlpha() {
-        return alpha;
+
+    public MPBPMPSolution run(MPBPMProblem problem) {
+        double start = System.nanoTime();
+
+        MPBPMPSolution opt = getInitial(problem);
+        LOGGER.info("Initial solution. opt=" + opt.getObjective());
+
+        MPBPMPSolution cur = opt.clone();
+        int k = 1;
+        int changes = 0;
+        List<Integer> shakable = IntStream.range(0, problem.getN())
+                .filter(i -> problem.getD()[i] - problem.getR()[i] > 0).boxed().collect(Collectors.toList());
+        while (k <= problem.getKmax()) {
+            LOGGER.info("Exploring neighborhood of size k=" + k);
+            Collections.shuffle(shakable, random);
+            Set<Integer> touchedPeriods = new HashSet<>();
+            // shaking
+            for (int j = 0; j < k; j++) {
+                if (shakable.size() <= 0) break;
+                int toSwap = shakable.get(j);
+                int oldPeriod = cur.getPeriods()[toSwap];
+                // trying random insertion
+                int insertionPeriod = problem.getR()[toSwap] + random.nextInt(problem.getD()[toSwap] - problem.getR()[toSwap] + 1);
+                while (insertionPeriod == cur.getPeriods()[toSwap])
+                    insertionPeriod = problem.getR()[toSwap] + random.nextInt(problem.getD()[toSwap] - problem.getR()[toSwap] + 1);
+
+                touchedPeriods.add(oldPeriod);
+                touchedPeriods.add(insertionPeriod);
+
+                cur.setPeriod(toSwap, insertionPeriod, problem);
+
+                double testcost = computeObjectiveFunction(cur, problem);
+                if (Math.abs(cur.getObjective() - testcost) > 0.1)
+                    throw new IllegalStateException("Swapping cost (" + cur.getObjective() + ") different from " +
+                            "calculated post(" + testcost + ").");
+            }
+
+            // TODO local search
+            for (int period : touchedPeriods) {
+                LOGGER.info("Solving period " + period);
+                solveSinglePeriod(cur, problem, period);
+                double testcost = computeObjectiveFunction(cur, problem);
+                if (Math.abs(cur.getObjective() - testcost) > 0.1)
+                    throw new IllegalStateException("Solving cost (" + cur.getObjective() + ") different from " +
+                            "calculated post(" + testcost + ").");
+            }
+
+            LOGGER.info("Done. cur=" + cur.getObjective() + ", opt=" + opt.getObjective());
+            // Move or not
+            if (cur.getObjective() < opt.getObjective()) {
+                LOGGER.info("New improving solution founded. Moving.");
+                opt = cur.clone();
+                k = 1;
+                changes++;
+                if (changes >= MAX_SOLUTION_CHANGES) {
+                    LOGGER.info("Max solution changes limit hit.");
+                    break;
+                }
+            } else {
+                cur = opt.clone();
+                k = k + 1;
+            }
+        }
+        double end = System.nanoTime();
+        double elapsedTime = (end - start) / 1e6;
+        opt.setElapsedTime(elapsedTime);
+        return opt;
     }
 
-    public int[] getLabels() {
-        return labels;
+    public MPBPMPSolution getInitial(MPBPMProblem problem) {
+        int[] periods = new int[problem.getN()];
+        int[] medians = new int[problem.getN()];
+        int periodSize = (int) Math.ceil((double) problem.getN() / problem.getM());
+        List<Integer> points = IntStream.range(0, problem.getN()).boxed().collect(Collectors.toList());
+        Collections.shuffle(points, random);
+        int period = 0;
+        for (List<Integer> periodPoints : Lists.partition(points, periodSize)) {
+            float[][] dist = new float[periodPoints.size()][periodPoints.size()];
+            for (int i=0; i<periodPoints.size(); i++) {
+                int pi = periodPoints.get(i);
+                periods[pi] = period;
+                for (int j=0; j<periodPoints.size(); j++) {
+                    int pj = periodPoints.get(j);
+                    dist[i][j] = problem.getC()[pi][pj];
+                }
+            }
+            period += 1;
+            BalancedPMedianVNS vns = new BalancedPMedianVNS(periodPoints.size(), problem.getP(), dist, random);
+            vns.run();
+            int[] labels = vns.getLabels();
+            for (int i=0; i<labels.length; i++)
+                medians[periodPoints.get(i)] = periodPoints.get(labels[i]);
+        }
+        MPBPMPSolution solution = new MPBPMPSolution(periods, medians, 0., 0.);
+        double cost = computeObjectiveFunction(solution, problem);
+        solution.setObjective(cost);
+        return solution;
     }
 
-    public int[] getPeriods() {
-        return periods;
+    public void solveSinglePeriod(MPBPMPSolution solution, MPBPMProblem problem, int period) {
+        List<Integer> periodPoints = solution.getPointsPerPeriod().get(period);
+        // compute old cost, will be used to update the cost of the solution (cost = cost - oldCost + newCost)
+        double oldCost = 0.;
+        for (int point : periodPoints) {
+            int median = solution.getMedians()[point];
+            oldCost += problem.getC()[point][median];
+            if (point == median) {
+                int size = solution.getPointsPerMedian().get(median).size();
+                oldCost += problem.getAlpha() * Math.abs(size - problem.getAvg());
+            }
+        }
+        // computing distance submatrix for period points
+        float[][] dist = new float[periodPoints.size()][periodPoints.size()];
+        for (int i=0; i<periodPoints.size(); i++) {
+            int pi = periodPoints.get(i);
+            for (int j=0; j<periodPoints.size(); j++) {
+                int pj = periodPoints.get(j);
+                dist[i][j] = problem.getC()[pi][pj];
+            }
+        }
+        // solving the period
+        BalancedPMedianVNS vns = new BalancedPMedianVNS(periodPoints.size(), problem.getP(), dist, random);
+        vns.run();
+        // updating the solution and computing new cost
+        int[] labels = vns.getLabels();
+        for (int i=0; i<labels.length; i++) {
+            int point = periodPoints.get(i);
+            int newMedian = periodPoints.get(labels[i]);
+            int oldMedian = solution.getMedians()[point];
+            if (newMedian == oldMedian) continue;
+
+        }
     }
 
-    public Map<Integer, List<Integer>> getPeriodPoints() {
-        return periodPoints;
-    }
-
-    public Map<Integer, Integer> getMediansCount() {
-        return mediansCount;
-    }
-
-    public float getObjective() {
-        return objective;
-    }
-
+    /*
     public void run() {
         // optimal values (TODO: initial solution)
         double start = System.nanoTime();
@@ -88,14 +171,14 @@ public class MPBPMProblemVNDS {
         int[] labelsOpt = getInitialLabels(periodPointsOpt);
         Map<Integer, Integer> mediansCountsOpt = getMediansCount(labelsOpt);
         float fopt = computeObjectiveFunction(labelsOpt, mediansCountsOpt, c);
+        LOGGER.info("Initial solution. opt=" + fopt);
 
         // current values
         int[] periodsCur = periodsOpt.clone();
-        Map<Integer, List<Integer>> periodPointsCur = new HashMap<>(periodPointsOpt);
+        Map<Integer, List<Integer>> periodPointsCur = cloneMapOfLists(periodPointsOpt);
         int[] labelsCur = labelsOpt.clone();
         Map<Integer, Integer> mediansCountsCur = new HashMap<>(mediansCountsOpt);
         float fcur;
-
         int k = 1;
         int changes = 0;
         while (k <= kmax) {
@@ -106,7 +189,6 @@ public class MPBPMProblemVNDS {
                 Integer i = random.nextInt(n);
                 while(d[i] - r[i] == 0)
                     i = random.nextInt(n);
-
                 float minCost = Float.MAX_VALUE;
                 int minPeriod = periodsCur[i], minMedian = labelsCur[i];
                 for (int t=r[i]; t<=d[i]; t++) {
@@ -124,25 +206,14 @@ public class MPBPMProblemVNDS {
                         }
                     }
                 }
-
-                LOGGER.info("swapping " + i + " from " + periodsCur[i] + " to " + minPeriod);
-
-                if (!periodPointsCur.get(periodsCur[i]).contains(i))
-                    System.out.println("DIO");
-
-                // and update data structures
                 periodPointsCur.get(periodsCur[i]).remove(i);
-
                 periodPointsCur.get(minPeriod).add(i);
-
                 mediansCountsCur.put(labelsCur[i], mediansCountsCur.get(labelsCur[i]) - 1);
                 mediansCountsCur.put(minMedian, mediansCountsCur.get(minMedian) + 1);
                 periodsCur[i] = minPeriod;
                 labelsCur[i] = minMedian;
             }
-
             LOGGER.info("Done. Now running local search.");
-
             // Local search: solve m separate p-median problems by using another vns (can do this in parallel to speed up)
             for (int t=0; t<m; t++) {
                 List<Integer> points = periodPointsCur.get(t);
@@ -150,9 +221,7 @@ public class MPBPMProblemVNDS {
                     if (labelsCur[i] == i)
                         mediansCountsCur.remove(i);
                 }
-                if (points.size() > 50)
-                    System.out.println("DIO");
-                BalancedPMedianVNS vns = new BalancedPMedianVNS(points.size(), p, c);
+                BalancedPMedianVNS vns = new BalancedPMedianVNS(points.size(), p, c, 1337);
                 vns.run();
                 int[] solution = vns.getLabels();
                 for (int i=0; i<solution.length; i++) {
@@ -162,19 +231,17 @@ public class MPBPMProblemVNDS {
                     mediansCountsCur.put(median, mediansCountsCur.getOrDefault(median, 0) + 1);
                 }
             }
+            LOGGER.info("L");
             fcur = computeObjectiveFunction(labelsCur, mediansCountsCur, c);
-
             LOGGER.info("Done. cur=" + fcur + ", opt=" + fopt);
-
             // Move or not
             if (fcur < fopt) {
                 LOGGER.info("New improving solution founded. Moving.");
                 periodsOpt = periodsCur.clone();
-                periodPointsOpt = new HashMap<>(periodPointsCur);
+                periodPointsOpt = cloneMapOfLists(periodPointsCur);
                 mediansCountsOpt = new HashMap<>(mediansCountsCur);
                 labelsOpt = labelsCur.clone();
                 fopt = fcur;
-
                 k = 1;
                 changes++;
                 if (changes >= MAX_SOLUTION_CHANGES) {
@@ -183,20 +250,18 @@ public class MPBPMProblemVNDS {
                 }
             } else {
                 periodsCur = periodsOpt.clone();
-                periodPointsCur = new HashMap<>(periodPointsOpt);
+                periodPointsCur = cloneMapOfLists(periodPointsOpt);
                 mediansCountsCur = new HashMap<>(mediansCountsOpt);
                 labelsCur = labelsOpt.clone();
                 k = k + 1;
             }
         }
-
         // save results
         this.objective = fopt;
         this.periods = periodsOpt;
         this.labels = labelsOpt;
-        this.periodPoints = new HashMap<>(periodPointsOpt);
-        this.mediansCount = new HashMap<>(mediansCountsOpt);
-
+        this.periodPoints = periodPointsOpt;
+        this.mediansCount = mediansCountsOpt;
         double end = System.nanoTime();
         this.elapsedTime = (end - start) / 1e6;
     }
@@ -241,35 +306,27 @@ public class MPBPMProblemVNDS {
         }
         return periodPoints;
     }
+    */
 
-    private int[] getInitialPeriods() {
-        int[] prds = new int[n];
-        for (int i=0; i<n; i++)
-            prds[i] = r[i] + random.nextInt(1 + d[i] - r[i]);
-        return prds;
-    }
+    public double computeObjectiveFunction(MPBPMPSolution solution, MPBPMProblem problem) {
+        double distCost = 0, balanceCost = 0;
+        double avg = problem.getAvg();
+        double alpha = problem.getAlpha();
+        float[][] c = problem.getC();
+        int[] medians = solution.getMedians();
+        Map<Integer, List<Integer>> pointsPerMedian = solution.getPointsPerMedian();
 
-    public float computeObjectiveFunction(final int[] labels, Map<Integer,Integer> counts, final float[][] c) {
-        float cost = 0;
-        for (int i=0; i<n; i++) {
-            cost += c[i][labels[i]];
-            if (counts.containsKey(i))
-                cost += alpha * Math.abs(counts.get(i) - avg);
+        for (int i=0; i<problem.getN(); i++) {
+            distCost += c[i][medians[i]];
+            if (pointsPerMedian.containsKey(i)) {
+                int count = pointsPerMedian.get(i).size();
+                balanceCost += alpha * Math.abs(count - avg);
+            }
         }
+        double cost = distCost + balanceCost;
+        LOGGER.info("Computed obj function. obj=" + cost + ", dist=" + distCost + ", balance=" + balanceCost);
         return cost;
     }
 
-    public float getAlpha(final int n, final float[][] c) {
-        float distSum = 0f;
-        int count = 0;
-        for (int i=0; i<n; i++) {
-            for (int j = 0; j < n; j++) {
-                if (i != j) {
-                    distSum += c[i][j];
-                    count += 1;
-                }
-            }
-        }
-        return 0.2f * distSum / count;
-    }
+
 }
