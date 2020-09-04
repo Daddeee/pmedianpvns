@@ -129,17 +129,10 @@ public class MPBPMProblemVNDS {
 
     public void solveSinglePeriod(MPBPMPSolution solution, MPBPMProblem problem, int period) {
         List<Integer> periodPoints = solution.getPointsPerPeriod().get(period);
-        // compute old cost, will be used to update the cost of the solution (cost = cost - oldCost + newCost)
-        double oldCost = 0.;
-        for (int point : periodPoints) {
-            int median = solution.getMedians()[point];
-            oldCost += problem.getC()[point][median];
-            if (point == median) {
-                int size = solution.getPointsPerMedian().get(median).size();
-                oldCost += problem.getAlpha() * Math.abs(size - problem.getAvg());
-            }
-        }
-        // computing distance submatrix for period points
+        // compute old cost of period. Needed to update the cost of the solution (cost = cost - oldCost + newCost)
+        double oldCost = getPeriodCost(periodPoints, solution, problem);
+
+        // computing distance submatrix for points in this period
         float[][] dist = new float[periodPoints.size()][periodPoints.size()];
         for (int i=0; i<periodPoints.size(); i++) {
             int pi = periodPoints.get(i);
@@ -148,18 +141,42 @@ public class MPBPMProblemVNDS {
                 dist[i][j] = problem.getC()[pi][pj];
             }
         }
+
         // solving the period
         BalancedPMedianVNS vns = new BalancedPMedianVNS(periodPoints.size(), problem.getP(), dist, random);
         vns.run();
-        // updating the solution and computing new cost
         int[] labels = vns.getLabels();
-        for (int i=0; i<labels.length; i++) {
+
+        // updating the solution
+        for (int i=0; i<periodPoints.size(); i++) {
+            int point = periodPoints.get(i);
+            int oldMedian = solution.getMedians()[point];
+            solution.getPointsPerMedian().remove(oldMedian);
+        }
+
+        for (int i=0; i<periodPoints.size(); i++) {
             int point = periodPoints.get(i);
             int newMedian = periodPoints.get(labels[i]);
-            int oldMedian = solution.getMedians()[point];
-            if (newMedian == oldMedian) continue;
-
+            solution.getMedians()[point] = newMedian;
+            solution.addToMedian(point, newMedian);
         }
+
+        double newCost = getPeriodCost(periodPoints, solution, problem);
+
+        solution.setObjective(solution.getObjective() - oldCost + newCost);
+    }
+
+    private double getPeriodCost(List<Integer> periodPoints, MPBPMPSolution solution, MPBPMProblem problem) {
+        double cost = 0.;
+        for (int point : periodPoints) {
+            int median = solution.getMedians()[point];
+            cost += problem.getC()[point][median];
+            if (point == median) {
+                int size = solution.getPointsPerMedian().get(median).size();
+                cost += problem.getAlpha() * Math.abs(size - problem.getAvg());
+            }
+        }
+        return cost;
     }
 
     /*

@@ -108,30 +108,6 @@ public class MPBPMPSolution {
         objective -= removalDelta;
     }
 
-    public void setMedian(int point, int newMedian, MPBPMProblem problem) {
-        if (periods[point] != periods[newMedian])
-            throw new IllegalArgumentException("Swapping medians across periods. point=" + point + ". period="
-                    + periods[point] + ", newMedian=" + newMedian + ", newPeriod=" + periods[newMedian]);
-        int oldMedian = medians[point];
-        if (newMedian == oldMedian)
-            return;
-        LOGGER.info("Swapping median of " + point + " from " + oldMedian + " to " + newMedian);
-        int oldMedianSize = pointsPerMedian.get(oldMedian).size();
-        int newMedianSize = pointsPerMedian.getOrDefault(newMedian, new ArrayList<>()).size() + 1;
-        double distDelta =  - problem.getC()[point][oldMedian] + problem.getC()[point][newMedian];
-        double balanceDelta = - problem.getAlpha() * Math.abs(oldMedianSize - problem.getAvg())
-                + problem.getAlpha() * Math.abs(newMedianSize - problem.getAvg());
-
-        pointsPerMedian.get(oldMedian).remove(new Integer(point));
-        if (pointsPerMedian.get(oldMedian).size() == 0)
-            pointsPerMedian.remove(oldMedian);
-        addToMapOfLists(newMedian, point, pointsPerMedian);
-        medians[point] = newMedian;
-        LOGGER.info("Computed delta. tot=" + (distDelta + balanceDelta) + ", dist=" + distDelta + ", balance="
-                + balanceDelta + ", old=" + objective);
-        objective += distDelta + balanceDelta;
-    }
-
     public void addToMedian(int point, int median) {
         addToMapOfLists(median, point, pointsPerMedian);
     }
