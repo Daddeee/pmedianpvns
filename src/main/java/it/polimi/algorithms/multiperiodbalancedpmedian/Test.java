@@ -25,7 +25,7 @@ public class Test {
                 .collect(Collectors.toList());
         Distance distance = new Euclidean(customers.stream().map(Customer::getLocation).collect(Collectors.toList()));
         int p = 2;
-        int m = 2;
+        int m = 4;
 
 
         System.out.println("=============== EXACT STANDALONE ===============");
@@ -53,8 +53,7 @@ public class Test {
     }
 
     private static void logResults(MPBPMPSolution solution) {
-        Map<Integer, Integer> medianCounts = solution.getPointsPerMedian().entrySet().stream()
-                .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().size()));
+        Map<Integer, Integer> medianCounts = getCounts(solution.getMedians());
         System.out.println("vnds solution: (obj=" + solution.getObjective() + ", time=" + solution.getElapsedTime() + ")");
         String title = "medians count";
         printCounts(medianCounts, title);

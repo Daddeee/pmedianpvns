@@ -18,8 +18,6 @@ public class MPBPMPSolution {
     private int[] medians;
     private double objective;
     private double elapsedTime;
-    private Map<Integer, List<Integer>> pointsPerPeriod;
-    private Map<Integer, List<Integer>> pointsPerMedian;
 
     public MPBPMPSolution(int[] periods, int[] medians, double objective, double elapsedTime) {
         if (periods.length != medians.length)
@@ -28,22 +26,6 @@ public class MPBPMPSolution {
         this.medians = medians;
         this.objective = objective;
         this.elapsedTime = elapsedTime;
-        this.pointsPerPeriod = new HashMap<>();
-        this.pointsPerMedian = new HashMap<>();
-        for (int i=0; i<periods.length; i++) {
-            addToMapOfLists(periods[i], i, pointsPerPeriod);
-            addToMapOfLists(medians[i], i, pointsPerMedian);
-        }
-    }
-
-    public MPBPMPSolution(int[] periods, int[] medians, double objective, double elapsedTime, Map<Integer,
-            List<Integer>> pointsPerPeriod, Map<Integer, List<Integer>> pointsPerMedian) {
-        this.periods = periods;
-        this.medians = medians;
-        this.objective = objective;
-        this.elapsedTime = elapsedTime;
-        this.pointsPerPeriod = pointsPerPeriod;
-        this.pointsPerMedian = pointsPerMedian;
     }
 
     public int[] getPeriods() {
@@ -62,14 +44,6 @@ public class MPBPMPSolution {
         return elapsedTime;
     }
 
-    public Map<Integer, List<Integer>> getPointsPerPeriod() {
-        return pointsPerPeriod;
-    }
-
-    public Map<Integer, List<Integer>> getPointsPerMedian() {
-        return pointsPerMedian;
-    }
-
     public void setObjective(double objective) {
         this.objective = objective;
     }
@@ -79,50 +53,26 @@ public class MPBPMPSolution {
     }
 
     public MPBPMPSolution clone() {
-        return new MPBPMPSolution(periods.clone(), medians.clone(), objective, elapsedTime,
-                cloneMapOfLists(pointsPerPeriod), cloneMapOfLists(pointsPerMedian));
+        return new MPBPMPSolution(periods.clone(), medians.clone(), objective, elapsedTime);
     }
 
-    public void setPeriod(int point, int newPeriod, MPBPMProblem problem) {
-        double removalDelta = problem.getC()[point][medians[point]];
-        removalDelta += (pointsPerMedian.get(medians[point]).size() <= problem.getAvg()) ? -problem.getAlpha() : problem.getAlpha();
-        double minDelta = Double.MAX_VALUE;
-        int newMedian = -1;
-        for (int i : pointsPerPeriod.get(newPeriod)) {
-            if (i == medians[i]) { // if i is a median in period newPeriod
-                double posDelta = problem.getC()[point][i];
-                posDelta += (pointsPerMedian.get(i).size() < problem.getAvg()) ? -problem.getAlpha() : problem.getAlpha();
-                if (posDelta < minDelta) {
-                    minDelta = posDelta;
-                    newMedian = i;
-                }
-            }
-        }
-        pointsPerPeriod.get(periods[point]).remove(new Integer(point));
-        addToMapOfLists(newPeriod, point, pointsPerPeriod);
+    public int getPeriod(int point) {
+        return periods[point];
+    }
+
+    public void setPeriod(int point, int newPeriod) {
         periods[point] = newPeriod;
-        pointsPerMedian.get(medians[point]).remove(new Integer(point));
-        addToMapOfLists(newMedian, point, pointsPerMedian);
+    }
+
+    public int getMedian(int point) {
+        return medians[point];
+    }
+
+    public void setMedian(int point, int newMedian) {
         medians[point] = newMedian;
-        objective += minDelta;
-        objective -= removalDelta;
     }
 
-    public void addToMedian(int point, int median) {
-        addToMapOfLists(median, point, pointsPerMedian);
-    }
-
-    public void addToPeriod(int point, int period) {
-        addToMapOfLists(period, point, pointsPerPeriod);
-    }
-
-    private Map<Integer, List<Integer>> cloneMapOfLists(Map<Integer, List<Integer>> map) {
-        return map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, e -> new ArrayList<>(e.getValue())));
-    }
-
-    private void addToMapOfLists(Integer key, Integer value, Map<Integer, List<Integer>> map) {
-        List<Integer> list = map.getOrDefault(key, new ArrayList<>());
-        list.add(value);
-        map.put(key, list);
+    public List<Integer> getPointsInPeriod(int period) {
+        return IntStream.range(0, periods.length).filter(i -> periods[i] == period).boxed().collect(Collectors.toList());
     }
 }
